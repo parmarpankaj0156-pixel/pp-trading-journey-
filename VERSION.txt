@@ -1,0 +1,4 @@
+PP Trading Journey
+VERSION: 4.0.0
+FEATURE: selected-account cumulative equity chart; 7D, 14D, 30D, All Time; one-color net P&L; tap inspection; yellow peak marker.
+ENTRY: index.html -> js-v4/app.js

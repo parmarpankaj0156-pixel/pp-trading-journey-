@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import {demoWorkspace,freshWorkspace,accountStats,tradeStats} from '../js-v3/data.js';
-import {pageView,shell,landing,authView,recoveryKeyView,renderModal,riskCalculation} from '../js-v3/views.js';
-import {periodRange,certificateData,certificateSVG,completedPeriodWithTrades} from '../js-v3/certificates.js';
-import {dateOf,uuid} from '../js-v3/utils.js';
+import {demoWorkspace,freshWorkspace,accountStats,tradeStats} from '../js-v4/data.js';
+import {pageView,shell,landing,authView,recoveryKeyView,renderModal,riskCalculation} from '../js-v4/views.js';
+import {periodRange,certificateData,certificateSVG,completedPeriodWithTrades} from '../js-v4/certificates.js';
+import {dateOf,uuid} from '../js-v4/utils.js';
 
 const w=demoWorkspace();
 assert.equal(w.accounts.length,4,'Sample accounts');
@@ -54,4 +54,4 @@ const yesterday=dateOf(-1);const lossCert=certificateData({profile:{name:'Demo t
 assert.equal(lossCert.net,-82);assert.equal(lossCert.greeting,'Better luck next time.');
 assert.ok(certificateSVG(lossCert).includes('#df5570'));
 assert.ok(completedPeriodWithTrades(w,w.accounts[0],'weekly',52),'Archives should find past trades');
-console.log('✓ PP Trading Journey v3: 12 screens, 8 modals, quick-entry fields, charts, funded progression, certificates and risk calculations passed.');
+console.log('✓ PP Trading Journey v4: 12 screens, 8 modals, quick-entry fields, charts, funded progression, certificates and risk calculations passed.');

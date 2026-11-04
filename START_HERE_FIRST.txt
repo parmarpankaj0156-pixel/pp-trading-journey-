@@ -1,19 +1,31 @@
-PP TRADING JOURNEY V3 — IMPORTANT!
+PP TRADING JOURNEY — V4 ACCOUNT CHART EDITION
+==============================================
+THIS ZIP IS FOR UPDATING THE SAME EXISTING GITHUB PAGES SITE.
 
-1) Extract this ZIP.
-2) Open your GitHub repository with GitHub Desktop.
-3) COPY EVERY FILE/FOLDER IN THIS ZIP INTO THE EXISTING REPOSITORY ROOT.
-4) OVERWRITE the old index.html. This is the most important step!
-5) Confirm the repo root shows styles-v3.css and js-v3/ (complete folder).
-6) Commit changes AND click Push origin.
-7) Open GitHub repository > Actions > latest Pages deployment should be green.
-8) Visit github.io live link in Incognito. Bottom-right MUST say "V3 • NEW EXPERIENCE".
+WHAT'S NEW:
+- Dashboard and Insights chart shows ONLY the selected account from the top account selector.
+- 7D / 14D / 30D / ALL TIME date controls.
+- ONE continuous green line when the selected account's overall net P&L > 0;
+  ONE red line when overall net P&L < 0; neutral when zero.
+- Yellow marker highlights the highest visible positive cumulative account profit.
+- Tap / hover gives date, daily net and cumulative net. Trades' broker fees are deducted.
+- Date filtering does not erase earlier account earnings: earlier cumulative P&L is carried forward.
+- Existing V3 features remain (trades, login integration, certificates, accounts, dark/light themes).
 
-NOTE: Demo UI works immediately. Real unique username signup/login/forgot-key requires
-Supabase SQL + Edge Function deployment, as detailed in README.md.
+HOW TO UPDATE EXISTING GITHUB PAGES SITE:
+1. MAKE A JSON BACKUP of your trades (Settings -> Export all data).
+2. Download and extract this ZIP to a folder on your computer.
+3. Open your existing GitHub repository, and replace the root index.html and
+   the rest of the contents with this V4 archive (same paths).
+   BEST METHOD: clone repository using GitHub Desktop, copy extracted V4 files
+   over it, commit, and PUSH ORIGIN. Uploading to a new folder WON'T update site.
+4. If you configured Supabase in V3, COPY your old js-v3/config.js values
+   INTO the NEW js-v4/config.js (public project URL and public/anon key ONLY).
+   NEVER copy or publish a secret Supabase service-role key.
+5. Confirm root index.html references "./js-v4/app.js?v=4.0.0".
+6. In GitHub Actions check the latest Pages deployment shows a green check.
+7. Open the published site in a new private/incognito window.
+   VERIFY bottom-right label "V4 • ACCOUNT CHART". If it's not visible,
+   GitHub is serving an old index.html or the wrong Pages branch/folder.
 
-Do not put a secret/service-role key in js-v3/config.js or any GitHub file.
-If you have an existing Supabase project, copy ONLY its public URL and anon key
-from the old js/config.js to js-v3/config.js.
-
-Also: Export a JSON backup of old trades before replacing/deploying.
+MORE DETAILS: DEPLOY_GUIDE_HINDI.md

@@ -1,0 +1,52 @@
+/* PP Trading Journey V4 — a focused, account-scoped equity chart */
+:root{--chart-peak-outline:#ffffff}
+.dashboard-chart-v4,.analytics-chart-v4{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(255,255,255,.90),rgba(252,253,255,.79) 56%,rgba(244,255,250,.76))!important;box-shadow:0 22px 68px rgba(48,79,145,.085),inset 0 1px 0 #fff!important}
+.dashboard-chart-v4:before,.analytics-chart-v4:before{content:"";position:absolute;pointer-events:none;width:280px;height:180px;background:radial-gradient(ellipse,rgba(125,146,255,.095),transparent 70%);top:-110px;right:0}
+.equity-chart-controls{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px 10px;padding:13px 0 14px;border-bottom:1px solid rgba(172,191,224,.25);margin:0 0 17px}
+.equity-account-label{display:inline-flex;align-items:center;gap:8px;max-width:100%;padding:8px 10px;background:linear-gradient(125deg,rgba(234,242,255,.85),rgba(241,247,254,.78));border:1px solid rgba(173,194,224,.3);border-radius:12px;color:#526585;font-size:11px;font-weight:740}
+.equity-account-label svg{flex-shrink:0;color:#6371e7}.equity-account-label b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:230px;color:#2b3b5b;font-size:11px}
+.equity-range-group{display:inline-flex;gap:4px;align-items:center;padding:4px;border-radius:13px;background:rgba(228,237,250,.75);border:1px solid rgba(163,182,219,.3)}
+.equity-range-btn{appearance:none;background:transparent;border:1px solid transparent;color:#647491;font:800 11px/1.1 'DM Sans',sans-serif;padding:9px 11px;border-radius:9px;cursor:pointer;transition:color .2s ease,background .2s ease,box-shadow .2s ease,transform .2s ease;white-space:nowrap;min-height:34px}
+.equity-range-btn:hover{background:#fff9;color:#394cc1;transform:translateY(-1px)}
+.equity-range-btn.is-selected{background:linear-gradient(120deg,#fff,#f6f8ff);border-color:rgba(169,181,225,.28);color:#4e5fe3;box-shadow:0 3px 11px rgba(86,102,153,.14),inset 0 1px 0 #fff}
+.equity-range-btn:focus-visible{outline:2px solid #6575ff;outline-offset:2px}
+.equity-overview-v4{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:11px;margin-bottom:2px}
+.equity-overview-v4>div{display:flex;gap:5px;flex-direction:column}
+.equity-overview-v4 small{color:#73819a;font-size:11px;font-weight:720;letter-spacing:.02em}
+.equity-overview-v4 strong{font-family:Manrope,'DM Sans',sans-serif;font-size:clamp(27px,3vw,36px);font-weight:820;letter-spacing:-.045em;line-height:1.13}
+.equity-period-v4{display:inline-flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:11px;font-weight:700;color:#73819b;margin-bottom:4px}
+.equity-period-v4 b{font-weight:820}.equity-period-v4 span{color:#8c9bb0}
+.equity-empty-range{display:inline-block;color:#64758d;font-size:11px;margin-top:11px;padding:9px 12px;border-radius:11px;background:rgba(221,231,246,.42)}
+.chart-v4-wrap{min-width:0;padding-top:17px}
+.chart-v4-legend{display:flex;gap:13px;flex-wrap:wrap;align-items:center;color:#64758f;font-size:10.5px;font-weight:750;margin-bottom:8px}
+.chart-v4-legend>span{display:inline-flex;align-items:center;gap:7px}
+.chart-v4-legend i:not(.peak-swatch){width:9px;height:9px;border-radius:999px;box-shadow:0 0 0 4px rgba(123,144,171,.10)}
+.chart-v4-legend .chart-tap-help{font-weight:620;color:#8a9ab2;white-space:nowrap}
+.interactive-equity-v4{min-height:0;touch-action:pan-y;cursor:crosshair;isolation:isolate}
+.interactive-equity-v4 svg{width:100%;height:auto;max-height:340px;overflow:visible;display:block;filter:drop-shadow(0 10px 7px rgba(29,88,107,.03))}
+.chart-monoline-v4{stroke-dasharray:1000;stroke-dashoffset:1000;animation:equity-reveal-v4 1.3s cubic-bezier(.24,.72,.24,1) both;filter:drop-shadow(0 3px 3px rgba(21,130,112,.13))}
+@keyframes equity-reveal-v4{to{stroke-dashoffset:0}}
+.chart-live-dot-v4{transform-box:fill-box;transform-origin:center;animation:equity-dot-v4 2.8s ease-in-out infinite}
+@keyframes equity-dot-v4{50%{transform:scale(1.26)}}
+.peak-marker-v4{transform-box:fill-box;transform-origin:center;animation:peak-pulse-v4 3s ease-in-out infinite}
+@keyframes peak-pulse-v4{50%{opacity:.78;transform:scale(1.09)}}
+.chart-guide{z-index:2;opacity:.55}.interactive-equity-v4 .chart-tooltip{z-index:5;top:7%;min-width:180px;padding:12px 15px;border-radius:15px;box-shadow:0 14px 40px rgba(33,65,119,.18)}
+.chart-empty-v4{min-height:190px;display:flex;justify-content:center;align-items:center;padding:30px 38px;text-align:center;line-height:1.65;color:#657794;font-weight:650;font-size:13px;background:repeating-linear-gradient(0deg,transparent,transparent 36px,rgba(169,193,221,.16) 37px);border-radius:14px}
+html[data-theme="dark"]{--chart-peak-outline:#17263f}
+html[data-theme="dark"] .dashboard-chart-v4,html[data-theme="dark"] .analytics-chart-v4{background:linear-gradient(135deg,rgba(25,40,65,.95),rgba(21,34,56,.88),rgba(17,42,52,.85))!important;box-shadow:0 16px 52px rgba(0,0,0,.22),inset 0 1px 0 rgba(200,226,255,.09)!important}
+html[data-theme="dark"] .equity-account-label{background:rgba(42,62,93,.66);border-color:rgba(117,146,193,.25);color:#9eafd0}
+html[data-theme="dark"] .equity-account-label b{color:#edf4ff}
+html[data-theme="dark"] .equity-range-group{background:rgba(29,44,70,.92);border-color:rgba(98,125,174,.25)}
+html[data-theme="dark"] .equity-range-btn{color:#9aaed1}
+html[data-theme="dark"] .equity-range-btn:hover{background:#314363;color:#fff}
+html[data-theme="dark"] .equity-range-btn.is-selected{background:linear-gradient(130deg,#455a8a,#354a75);border-color:#5e74a4;color:#f4f7ff;box-shadow:0 4px 11px #0109134d}
+html[data-theme="dark"] .equity-overview-v4 small,html[data-theme="dark"] .equity-period-v4{color:#a9bad8}
+html[data-theme="dark"] .equity-period-v4 span{color:#8398ba}
+html[data-theme="dark"] .equity-chart-controls{border-bottom-color:#6a7e9b3b}
+html[data-theme="dark"] .chart-v4-legend{color:#a9b9d2}
+html[data-theme="dark"] .chart-empty-v4{background:rgba(18,31,50,.35);color:#a9bbd9}
+html[data-theme="dark"] .equity-empty-range{background:rgba(54,74,105,.48);color:#a9bddb}
+@media(max-width:1200px){.equity-account-label b{max-width:160px}.dashboard-chart-v4 .equity-chart-controls{align-items:flex-start}}
+@media(max-width:760px){.equity-chart-controls{flex-direction:column;align-items:stretch;gap:10px}.equity-account-label{max-width:max-content}.equity-range-group{width:100%;justify-content:space-between}.equity-range-btn{flex:1;padding:10px 6px}.equity-overview-v4 strong{font-size:30px}.equity-period-v4{width:100%}.chart-v4-legend{gap:10px}.chart-v4-legend .chart-tap-help{margin-left:0}.interactive-equity-v4 .chart-tooltip{min-width:155px;padding:10px 12px}}
+@media(max-width:390px){.equity-account-label b{max-width:158px}.equity-range-btn{font-size:10px}.chart-v4-legend{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.chart-monoline-v4,.chart-live-dot-v4,.peak-marker-v4{animation:none!important;stroke-dasharray:none;stroke-dashoffset:0}.equity-range-btn{transition:none}}

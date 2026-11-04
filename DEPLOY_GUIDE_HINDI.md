@@ -1,51 +1,43 @@
-# PP Trading Journey V3 — GitHub par updated website live kaise karein
+# PP Trading Journey V4 — GitHub par purani website replace karna
 
-## A. Pehle existing trading data ka backup
+## 1. Backup
+Purani site kholkar **Settings > Export all data** se JSON backup download karo. ZIP GitHub par replace karne se browser ka data automatically delete nahi hota, lekin backup zaroor rakhna.
 
-Old site: Settings → Export all data → JSON save karo. Demo data browser mein rehta hai; alag domain/browser se khud migrate nahi hota.
+## 2. Purane repository par update (IMPORTANT)
+V4 se naya project / nayi repository mat banana agar existing URL same rakhna hai.
 
-## B. Old GitHub website par naya design lagao
+**Sabse reliable tarika GitHub Desktop:**
+1. [GitHub Desktop](https://desktop.github.com/) install karo aur sign in karo.
+2. **File > Clone repository** mein apna existing `pp-trading-journey` repo choose karo.
+3. ZIP ko **Extract All** karo. Extracted folder ke **andar ki** files dekho.
+4. Is folder ke contents (root `index.html`, `styles.css`, `styles-v3.css`, `styles-v4.css`, `js-v4` folder, assets, etc.) ko cloned repository ke main folder mein copy karo.
+5. Windows puche to **Replace files in destination** dabao.
+6. Agar V3 mein Supabase configured tha, **old `js-v3/config.js` ka public URL + publishable/anon key NEW `js-v4/config.js` mein set karo**. Service-role/secret key kabhi public GitHub par mat dalna.
+7. GitHub Desktop mein changes dikhne chahiye. Message likho `Update PP Trading Journey V4` aur **Commit to main**, phir **Push origin**.
 
-1. ZIP ko **Extract All** karo.
-2. GitHub Desktop install karke apni `pp-trading-journey` repository **Clone** karo.
-3. Extracted ZIP ke andar ke **sab files + folders** ko cloned repository ke **main/root folder** mein paste karo. `index.html` replace hona chahiye. Folder ke andar extra `PP_Trading_Journey_V3` folder mat banao.
-4. GitHub Desktop mein changes dikhenge: `index.html` modified, `styles-v3.css` added, **`js-v3/`** added. **Commit to main**, phir **Push origin**.
-5. GitHub repository → Settings → Pages → Deploy from a branch → main / (root).
-6. Repository → Actions mein latest Pages deployment green hona chahiye.
-7. Website `https://YOUR_USERNAME.github.io/pp-trading-journey/` Incognito mein kholo; bottom-right mein **V3 • NEW EXPERIENCE** dikhna chahiye.
-8. Agar V3 badge nahi dikh raha: repository ka root `index.html` check karo. Usmein `styles-v3.css` aur `js-v3/app.js` hona **zaroori** hai. Sirf new files upload karne se website update nahi hoti agar old index.html reh jaye.
+**Browser-only upload**: GitHub > existing repo > `Add file` > `Upload files` se files ko **same paths** par replace karna hai. `index.html` repository root mein hi hona chahiye; ZIP ko as a ZIP upload nahi karna. Agar drag-drop folders overwrite na ho paye, GitHub Desktop method use karo.
 
-## C. Demo mode
+## 3. Confirm GitHub Pages
+Repository > Settings > Pages > Source `Deploy from a branch`, Branch `main`, Folder `/(root)`.
+Repository > Actions mein latest Pages deployment successful ho. Website ka URL pehle jaisa hi rahega.
 
-Explore Demo → Overview, Add Trade, Accounts, Insights → Certificates aur Tools → Settings check kar sakte ho. Buy/Sell, dark/light, green/red chart aur yellow peak dot demo mein kaam karenge. Demo login real private account **nahi** hai.
+## 4. V4 actually live hua kya?
+- Live website private/incognito tab mein kholna.
+- Bottom-right **V4 • ACCOUNT CHART** likha hona chahiye.
+- Browser se `view-source:YOUR-LIVE-URL` open karke `js-v4/app.js` search kar sakte ho.
+- Agar version purana hai: GitHub root `index.html` replace nahi hui, Pages kisi aur branch/folder ko serve kar raha hai ya old cache hai. Hard refresh `Ctrl + Shift + R` try karo.
 
-## D. Unique username + forgot key + cloud data
+## 5. New chart kaise use karna hai
+1. Website ke top header se **account select** karo.
+2. Overview ke Performance card mein selected account ka naam dikhna chahiye.
+3. Chart buttons: **7D, 14D, 30D, All Time**. Dono Overview aur Insights mein same setting apply hogi.
+4. Chart ka **single green/red color** selected account ki *overall cumulative net P&L* par depend karta hai (broker fees deduct karke), filtered window ke andar aane wale har win/loss par nahi. Zero P&L par neutral.
+5. Top amount **all-time account net P&L** hai. Niche 7/14/30 days ka period change separately dikhata hai. All Time sabhi historical trades (up to today) dikhata hai.
+6. Tooltip: mouse hover ya chart pe touch/click karne par day result aur cumulative net dikhte hain.
+7. Yellow dot visible selected range ka highest positive cumulative P&L highlight karta hai.
 
-Yeh GitHub ke static hosting se akela **possible nahi**. Supabase project/backend setup karna hoga.
+## 6. Supabase / user accounts
+GitHub Pages static frontend host karta hai. Real username/password + recovery key ke liye V3 se included Supabase schema aur Edge Function deploy karna zaroori hai. V4 code compatible hai, lekin Supabase credentials aur Edge Function alag setup karna hoga. Existing database ko dubara reset karne ki zaroorat nahi (schema migrate karne se pehle backup/SQL review karo).
 
-1. Supabase Dashboard → SQL Editor → `supabase/schema.sql` ka entire code run karo.
-2. PC mein extracted project ki directory terminal mein kholo.
-3. Commands:
-
-```bash
-npx supabase login
-npx supabase link --project-ref YOUR_SUPABASE_PROJECT_REF
-npx supabase functions deploy username-auth --no-verify-jwt
-```
-
-4. `js-v3/config.js` file mein apna **Supabase URL aur public anon/publishable key** set karo. **Service role/secret key GitHub par kabhi mat dalo.**
-5. Updated file GitHub par commit/push karo.
-6. Website mein Create account → Name + unique Username + Password + Confirm password bharo. Key ek hi baar dikhayi jayegi; secure jagah rakho.
-7. Forgot password mein Username + Forgot Key + New Password bharna. Password reset par **new key** save karna mandatory hai.
-
-**NOTE:** Email/mobile field nahi hai aur email/SMS recovery bhi nahi hai. Password aur key dono kho gaye to self-service recover nahi kar sakte. Purane email login accounts automatically migrate nahi honge; old backup import karna hoga.
-
-## E. Additional check
-
-- GitHub Pages URL `github.io` hoga, `localhost` nahi.
-- `index.html` direct root mein hai?
-- `styles-v3.css` aur `js-v3/` files root mein hain?
-- Actions ka latest deploy successful hai?
-- Supabase auth backend setup ke bina signup disabled rahega, lekin Demo chalega.
-
-Detailed instructions `README.md` mein hain.
+## 7. Agar chart phir bhi purana dikhe
+Mujhe live Pages URL aur GitHub repository URL bhejo; main public site ke root `index.html` aur assets compare karke bata sakta hoon kis path ka problem hai.

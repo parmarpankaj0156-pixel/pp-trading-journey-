@@ -1,1 +1,10 @@
-{"name":"pp-trading-journey","private":true,"version":"3.0.0","type":"module","scripts":{"test":"node tests/smoke.mjs"},"description":"Premium GitHub Pages journal with secure Supabase username auth function"}
+{
+  "name": "pp-trading-journey",
+  "private": true,
+  "version": "4.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/smoke.mjs && node tests/chart-v4.mjs"
+  },
+  "description": "Premium GitHub Pages journal V4 with account-scoped equity chart and Supabase username auth integration"
+}
