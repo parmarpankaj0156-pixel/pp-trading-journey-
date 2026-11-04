@@ -1,3 +1,23 @@
+# PP Trading Journey V2 — Existing GitHub Website Update
+
+Ye **replacement ZIP** hai. Existing repository ka naam ya link change karna zaroori nahi hai.
+
+1. Purani website me **Settings → Export backup** kar lo (agar demo data important hai).
+2. New ZIP **Extract All** karo.
+3. Extracted folder ke **andar ki saari files aur folders** upload/replace karo, including NEW `styles-v2.css` and `js/certificates.js`. `index.html` repo root me hona chahiye.
+4. Existing GitHub repo → **Add file → Upload files**; matching file names replace/commit karo. Agar web uploader replacement rokta hai, file editor ya GitHub Desktop se same path wali files update karo.
+5. **Commit changes** karo. Pages already enabled ho to website automatically new version se deploy hogi.
+6. Website kholo aur **Ctrl+Shift+R** press karo. Old browser cache clear hoga.
+7. Check: sidebar me 5 tabs, Add Trade me + More options, Insights → Certificates.
+
+⚠️ Agar real Supabase login pehle se connected tha, apne existing GitHub `js/config.js` me jo URL aur publishable/anon key hai unhe preserve karo. Blank ZIP config upload kar doge to login connection band ho jayega. **Never commit service-role or secret keys.**
+
+Website open karne ke liye GitHub Pages ka URL use karo, `localhost` nahi. `localhost` sirf tab chalega jab tumhare computer par local server run ho.
+
+**Demo vs Login:** ZIP upload se landing page/demo live ho jata hai. Real signup/login ke liye separately Supabase credentials + SQL schema setup karna hota hai.
+
+---
+
 # PP Trading Journey — GitHub Par Website Kaise Upload Karein
 
 ## 1. Website live karna (easy, no coding required)

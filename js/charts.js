@@ -6,19 +6,23 @@ export function equitySeries(trades,days=30){
  return dates.map(date=>({date,value:(running+=totals.get(date)||0),change:totals.get(date)||0}));
 }
 export function lineChart(series,{id='equity',height=258,currency='USD',compact=false,mask=false}={}){
- const W=760,H=height, pad={l:compact?4:14,r:compact?4:12,t:16,b:compact?10:34};
- if(!series?.length)return `<div class="chart-empty">No data to chart yet</div>`;
- let vals=series.map(d=>d.value);let lo=Math.min(0,...vals),hi=Math.max(0,...vals);let rg=hi-lo||1;lo-=rg*.17;hi+=rg*.16;
- const x=i=>pad.l+i*(W-pad.l-pad.r)/Math.max(1,series.length-1);
- const y=v=>pad.t+(hi-v)/(hi-lo)*(H-pad.t-pad.b);
- const path=series.map((p,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(p.value).toFixed(1)}`).join(' ');
- const area=`${path} L${x(series.length-1)} ${H-pad.b} L${x(0)} ${H-pad.b} Z`;
- const end=series[series.length-1];const positive=end.value>=0;
- const gradId=`grad-${id}`,lineId=`line-${id}`;
- const grids=[0,.25,.5,.75,1].map(t=>{const v=lo+(hi-lo)*(1-t);const yy=y(v);return `<line x1="${pad.l}" x2="${W-pad.r}" y1="${yy}" y2="${yy}" stroke="#dce3f1" stroke-dasharray="4 8" opacity=".65"/>${compact?'':`<text x="${pad.l}" y="${yy-6}" font-size="10" fill="#8892aa">${mask?'••••':money(v,currency)}</text>`}`}).join('');
- const labels=compact?'':[0,Math.round((series.length-1)/3),Math.round((series.length-1)*2/3),series.length-1].map(i=>`<text x="${x(i)}" y="${H-7}" text-anchor="${i===0?'start':i===series.length-1?'end':'middle'}" font-size="11" fill="#8993ab">${niceDate(series[i].date,{month:'short',day:'numeric'})}</text>`).join('');
- const dots=series.map((p,i)=>`<g class="chart-hover-point"><circle cx="${x(i)}" cy="${y(p.value)}" r="${compact?8:11}" fill="transparent"/><circle cx="${x(i)}" cy="${y(p.value)}" r="4" class="point-dot" fill="${positive?'#5d6ef3':'#dd6b7d'}"/><title>${niceDate(p.date)} • ${mask?'Hidden':money(p.value,currency)}</title></g>`).join('');
- return `<div class="svg-chart ${compact?'compact-chart':''}"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Equity curve chart from ${niceDate(series[0].date)} to ${niceDate(end.date)}" preserveAspectRatio="none"><defs><linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${positive?'#7488fa':'#ed8d9a'}" stop-opacity=".30"/><stop offset="100%" stop-color="${positive?'#7488fa':'#ed8d9a'}" stop-opacity="0"/></linearGradient><linearGradient id="${lineId}" x1="0" x2="1"><stop offset="0%" stop-color="#8e9df9"/><stop offset="100%" stop-color="${positive?'#6374ed':'#db7185'}"/></linearGradient></defs>${grids}<path d="${area}" fill="url(#${gradId})" class="area-reveal"/><path d="${path}" fill="none" stroke="url(#${lineId})" stroke-width="${compact?3:3.5}" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100" class="chart-draw"/>${dots}<circle cx="${x(series.length-1)}" cy="${y(end.value)}" r="6.5" fill="white" stroke="${positive?'#6477f0':'#dc7486'}" stroke-width="3"/>${labels}</svg></div>`;
+ const W=760,H=height,pad={l:compact?4:14,r:compact?4:12,t:16,b:compact?10:34};
+ if(!series?.length)return `<div class="chart-empty">No trades to chart yet</div>`;
+ const vals=series.map(d=>d.value);let lo=Math.min(0,...vals),hi=Math.max(0,...vals),range=hi-lo||1;lo-=range*.17;hi+=range*.16;
+ const X=i=>pad.l+i*(W-pad.l-pad.r)/Math.max(1,series.length-1);
+ const Y=v=>pad.t+(hi-v)/(hi-lo)*(H-pad.t-pad.b);
+ const path=series.map((p,i)=>`${i?'L':'M'}${X(i).toFixed(1)} ${Y(p.value).toFixed(1)}`).join(' ');
+ const area=`${path} L${X(series.length-1)} ${H-pad.b} L${X(0)} ${H-pad.b} Z`;
+ const end=series[series.length-1],positive=end.value>=0;
+ const gradId=`grad-${id}`;
+ const grids=[0,.25,.5,.75,1].map(t=>{const v=lo+(hi-lo)*(1-t),yy=Y(v);return `<line x1="${pad.l}" x2="${W-pad.r}" y1="${yy}" y2="${yy}" stroke="#d1ddeb" stroke-dasharray="4 8" opacity=".68"/>${compact?'':`<text x="${pad.l}" y="${yy-6}" font-size="10" fill="#657997">${mask?'••••':money(v,currency)}</text>`}`}).join('');
+ const labels=compact?'':[0,Math.round((series.length-1)/3),Math.round((series.length-1)*2/3),series.length-1].map(i=>`<text x="${X(i)}" y="${H-7}" text-anchor="${i===0?'start':i===series.length-1?'end':'middle'}" font-size="11" fill="#697c96">${niceDate(series[i].date,{month:'short',day:'numeric'})}</text>`).join('');
+ const segments=series.slice(1).map((point,i)=>{
+  const prev=series[i],up=point.value>=prev.value;
+  return `<path d="M${X(i).toFixed(2)} ${Y(prev.value).toFixed(2)} L${X(i+1).toFixed(2)} ${Y(point.value).toFixed(2)}" class="equity-segment" fill="none" stroke="${up?'#08a77d':'#e25369'}" stroke-width="${compact?3.7:4}" stroke-linecap="round" pathLength="100" stroke-dasharray="100" style="animation-delay:${(i/Math.max(1,series.length-1)*.75).toFixed(2)}s"/>`;
+ }).join('');
+ const dots=series.map((p,i)=>`<g class="chart-hover-point"><circle cx="${X(i)}" cy="${Y(p.value)}" r="${compact?9:12}" fill="transparent"/><circle cx="${X(i)}" cy="${Y(p.value)}" r="4" class="point-dot" fill="${p.change>=0?'#0b9e75':'#e14e67'}"/><title>${niceDate(p.date)} • ${mask?'Hidden':money(p.value,currency)} • ${p.change>=0?'Profit':'Loss'} day</title></g>`).join('');
+ return `<div class="svg-chart ${compact?'compact-chart':''}"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Equity performance. Green is profit, red is loss." preserveAspectRatio="none"><defs><linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${positive?'#20c9a0':'#ff839b'}" stop-opacity=".22"/><stop offset="1" stop-color="${positive?'#20c9a0':'#ff839b'}" stop-opacity="0"/></linearGradient></defs>${grids}<path d="${area}" fill="url(#${gradId})" class="area-reveal"/><path d="${path}" fill="none" stroke="#d2dce9" stroke-width="${compact?3.6:4.1}" opacity=".7" stroke-linecap="round"/>${segments}${dots}<circle cx="${X(series.length-1)}" cy="${Y(end.value)}" r="6" fill="white" stroke="${end.change>=0?'#09a97d':'#df526c'}" stroke-width="3"/>${labels}</svg></div>`;
 }
 export function sparkline(series,color='#6574ee'){
  const values=series.length?series:[0]; const max=Math.max(...values,1),min=Math.min(...values,0); const pts=values.map((n,i)=>`${i*130/Math.max(values.length-1,1)},${43-((n-min)/(max-min||1)*32)}`).join(' ');

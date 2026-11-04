@@ -1,0 +1,7 @@
+{
+  "name": "pp-trading-journey",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Static GitHub Pages-ready premium trading journal"
+}

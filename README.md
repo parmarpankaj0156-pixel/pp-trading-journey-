@@ -1,4 +1,34 @@
-# PP Trading Journey ✦
+# PP Trading Journey — Version 2.0
+
+**Premium pearl-white glass trading journal · GitHub Pages ready**
+
+## What changed in v2
+
+- Cleaner dashboard and short landing page with stronger text contrast and brighter glass accents.
+- Only **five main sidebar destinations**: Overview, Journal, Accounts, Insights, Tools. Existing subpages remain accessible as tabs.
+- Green segments for profitable chart movement, red for losing movement.
+- **Quick Add Trade** shows account, profit/loss choice, gross P&L, broker fees, date/time, entry type; other inputs are inside **+ More options**, all optional.
+- **Automatic weekly, monthly and yearly performance certificates**, plus an archive for completed periods.
+- Daily certificate is **manual/optional**. Each certificate has the profile name, PP branding, performance-based message, actual stats, and a blurred performance chart across its background.
+- Certificate **Download PNG** exports a 1600×900 image.
+- Existing account, funded challenge, payout, risk, note, screenshot, export/import and (when configured) Supabase authentication features remain.
+
+### Existing GitHub site: replace files safely
+
+1. If your browser demo already contains important trades, open **Settings → Export backup** first.
+2. If your GitHub site's `js/config.js` already contains real Supabase URL / public key, **keep those existing values**. The ZIP provides blank template values for new installations.
+3. Extract the ZIP, and upload **the files and folders INSIDE the extracted folder** to your existing GitHub repository, on the `main` branch. Replace files with matching names; do not put the extracted folder itself inside the repository.
+4. Confirm `index.html`, `styles.css`, **`styles-v2.css`**, `js/` and `assets/` are at the root. Commit.
+5. Your existing GitHub Pages link stays the same. Hard-refresh with **Ctrl+Shift+R** after deployment.
+6. Because the demo localStorage key and data schema are retained, existing demo data on the **same website origin** should still load; use the backup if you changed the domain or browser.
+
+**Note:** These certificates are generated from recorded trades when the page is opened or refreshed; they do not require an always-running background server. Current incomplete periods are labeled *Live preview*. Completed periods with trades automatically appear in the archive.
+
+**IMPORTANT:** GitHub Pages is public static hosting. Real login/signup and private cloud storage still require you to configure Supabase as described below. Publishing this ZIP alone will not enable private accounts.
+
+---
+
+# Original setup instructions
 
 **A premium glassmorphism trading journal — ready for GitHub Pages.**
 
