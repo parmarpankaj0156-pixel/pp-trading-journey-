@@ -1,196 +1,89 @@
-# PP Trading Journey — Version 2.0
+# PP Trading Journey — V3 (GitHub-ready)
 
-**Premium pearl-white glass trading journal · GitHub Pages ready**
+A premium, responsive trading journal with Apple-inspired pearl-glass UI and a new midnight theme. The public front end works on GitHub Pages. Real username-only accounts require the included Supabase Edge Function and database schema; GitHub Pages alone is **not** a secure authentication backend.
 
-## What changed in v2
+## V3 upgrades
 
-- Cleaner dashboard and short landing page with stronger text contrast and brighter glass accents.
-- Only **five main sidebar destinations**: Overview, Journal, Accounts, Insights, Tools. Existing subpages remain accessible as tabs.
-- Green segments for profitable chart movement, red for losing movement.
-- **Quick Add Trade** shows account, profit/loss choice, gross P&L, broker fees, date/time, entry type; other inputs are inside **+ More options**, all optional.
-- **Automatic weekly, monthly and yearly performance certificates**, plus an archive for completed periods.
-- Daily certificate is **manual/optional**. Each certificate has the profile name, PP branding, performance-based message, actual stats, and a blurred performance chart across its background.
-- Certificate **Download PNG** exports a 1600×900 image.
-- Existing account, funded challenge, payout, risk, note, screenshot, export/import and (when configured) Supabase authentication features remain.
+- V3 proof-of-deployment badge at the bottom-right and **versioned asset filenames** (`styles-v3.css`, `js-v3/`) to reduce caching confusion.
+- Clean 5-section primary sidebar, with the full journal, calendar, analytics, certificates and settings still present.
+- Add Trade: account, Profit/Loss, Buy/Sell, gross P&L amount, fees, date/time and entry type all visible; advanced fields optional inside **+ More options**.
+- Actual saved-trade equity graph: green increasing segments, red decreasing segments, yellow dot at the highest positive cumulative P&L, touch/mouse inspector with date + day P&L + cumulative P&L. No broker live market feed—this is an **equity/performance chart** built from journal entries.
+- Account target and drawdown meters show exact amounts and percentages based on the account's saved starting balance and configured rules. No red progress on profitable/no-drawdown accounts.
+- Existing daily optional / weekly, monthly, yearly certificate system retained, with logo, performance-dependent message and chart backdrop. They reflect **recorded trades**, not verified broker statements. Weekly/monthly/yearly reports are generated on opening the page; they are **not pre-rendered or delivered by a background server**.
+- Theme switch in Settings, saved per workspace and locally. Includes high-contrast dark mode.
+- New username-only login (no phone/email fields), unique usernames, 10+ character passwords and a one-time recovery key after registration, via Supabase Edge Functions. Recovery generates a **new key**; the old one is invalidated.
 
-### Existing GitHub site: replace files safely
+## Quick publish — GitHub Pages
 
-1. If your browser demo already contains important trades, open **Settings → Export backup** first.
-2. If your GitHub site's `js/config.js` already contains real Supabase URL / public key, **keep those existing values**. The ZIP provides blank template values for new installations.
-3. Extract the ZIP, and upload **the files and folders INSIDE the extracted folder** to your existing GitHub repository, on the `main` branch. Replace files with matching names; do not put the extracted folder itself inside the repository.
-4. Confirm `index.html`, `styles.css`, **`styles-v2.css`**, `js/` and `assets/` are at the root. Commit.
-5. Your existing GitHub Pages link stays the same. Hard-refresh with **Ctrl+Shift+R** after deployment.
-6. Because the demo localStorage key and data schema are retained, existing demo data on the **same website origin** should still load; use the backup if you changed the domain or browser.
+1. Download ZIP and extract it.
+2. **Back up existing demo data** with Settings → Export all data before modifying your old site. For connected accounts, also export JSON, as username accounts create separate auth identities.
+3. Open your existing repository (`pp-trading-journey`) with **GitHub Desktop** (recommended). Copy everything from the extracted ZIP **into the repository root**, overwriting files, including **`index.html`**. Do not upload the ZIP itself or place an extra parent directory around the files.
+4. Commit and **Push origin**. Then verify `index.html` has `styles-v3.css` and `js-v3/app.js`; `styles-v3.css` and the complete `js-v3/` folder must appear at repository root. Keeping the old `js/` and `styles-v2.css` in GitHub is harmless—the V3 `index.html` points to V3 assets.
+5. Settings → Pages → Deploy from a branch → `main` and `/(root)` → Save. Check Actions → Pages deployment finished successfully.
+6. Open `https://YOURUSERNAME.github.io/pp-trading-journey/` in a private tab or hard refresh. The tiny **V3 • NEW EXPERIENCE** badge at the lower right confirms the new `index.html` is live.
+7. Explore Demo to check the updated interface **without** backend setup.
 
-**Note:** These certificates are generated from recorded trades when the page is opened or refreshed; they do not require an always-running background server. Current incomplete periods are labeled *Live preview*. Completed periods with trades automatically appear in the archive.
+> `localhost` is not your public website address. GitHub Pages uses your `github.io` URL.
 
-**IMPORTANT:** GitHub Pages is public static hosting. Real login/signup and private cloud storage still require you to configure Supabase as described below. Publishing this ZIP alone will not enable private accounts.
+## Enable username/password/forgot-key cloud login
 
----
+GitHub Pages serves static files; it cannot securely enforce unique usernames or hold recovery keys. The `supabase/functions/username-auth/index.ts` file is **server-side** and must run as a Supabase Edge Function, not in a public browser. Do **not** expose any service-role/secret key in GitHub or `js-v3/config.js`.
 
-# Original setup instructions
+### Prerequisites
 
-**A premium glassmorphism trading journal — ready for GitHub Pages.**
+- A Supabase project (https://supabase.com), Supabase CLI (https://supabase.com/docs/guides/cli), and Node.js installed for `npx`.
+- Ensure your Supabase project has enough Auth/database resources for your usage.
 
-PP Trading Journey is a responsive, pearl-white personal trading workspace with glass cards, custom animated SVG charts, a funded-account tracker, searchable trade history, calendar, analytics, mood journaling, goals, payouts, risk calculator, and optional real email/password authentication with private cloud sync.
+### Set up
 
-**No build tools, npm, React, paid hosting, or deployment pipeline are required.** Every file is plain HTML, CSS, SVG, or JavaScript; the site deploys directly from a GitHub repository.
-
-## ▶ Try immediately (no login setup required)
-
-1. Download and unzip the project.
-2. Run a small local static server inside the project folder:
-
-   ```bash
-   python -m http.server 8000
-   ```
-
-3. Open http://localhost:8000 in a browser.
-4. Click **Explore demo**. All sections are interactive. Demo edits save in **this browser's localStorage**, and can be exported/imported as JSON.
-
-> Opening `index.html` by double-clicking may not work because browser security prevents ES modules from loading via `file://`. Use a local server or publish on GitHub Pages.
-
-## 🚀 Deploy to GitHub Pages
-
-1. Create a **new public GitHub repository** (for example `pp-trading-journey`).
-2. Upload **the contents of this folder**, keeping `index.html`, `styles.css`, `js`, `assets`, and `supabase` at the **repository root**. Do not upload them inside an extra parent directory.
-3. Commit the files to the `main` branch.
-4. Go to **Settings → Pages → Build and deployment → Source: Deploy from a branch**.
-5. Choose **Branch: `main`**, Folder: **`/(root)`**, then **Save**.
-6. After publication, your site will be at `https://YOUR-USERNAME.github.io/YOUR-REPO/`.
-
-The demo works immediately. For real accounts and syncing, complete the next section.
-
-## 🔐 Enable REAL login / signup and private cloud data (Supabase)
-
-GitHub Pages only hosts static files. **It cannot securely store user accounts or sync private journal data by itself.** For this, the project includes an optional Supabase backend with actual authentication, row-level security (RLS), and private screenshot storage.
-
-### Step A — Create backend
-
-1. Go to [supabase.com](https://supabase.com), create a project, and keep its database password private.
-2. In the Supabase dashboard, open **SQL Editor**, paste the full contents of `supabase/schema.sql`, and **Run**. This creates `public.user_workspaces`, enables per-user RLS policies, and creates private storage bucket `trade-screenshots`.
-3. Open **Authentication → Providers → Email** and enable email/password authentication. Choose whether new accounts must confirm their email.
-4. Under **Authentication → URL Configuration**, set **Site URL** to your final website (for example `https://YOUR-USERNAME.github.io/YOUR-REPO/`). Add the same URL under **Redirect URLs** for password reset and email flows. For local testing, optionally add `http://localhost:8000/`.
-
-### Step B — Connect frontend
-
-1. In Supabase open **Project Settings → API Keys** (or the equivalent Connect / API settings in the current dashboard).
-2. Copy the **Project URL** and the **publishable/anon key**.
-3. Open `js/config.js` in your GitHub repository and change:
-
-   ```js
-   export const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
-   export const SUPABASE_ANON_KEY = 'YOUR-PUBLISHABLE-KEY';
-   ```
-
-4. Commit. GitHub Pages publishes the new files. The login and signup forms now use real Supabase accounts.
-
-**Security:** The public/publishable Supabase key is designed to be used in frontend applications when RLS is correctly configured. **Never put `service_role`, secret API keys, a database password, or any private token in `js/config.js` or GitHub.** Test a new account after applying the SQL policies. The SQL must be applied before storing private data.
-
-### Data mode differences
-
-| | Interactive demo | Cloud account |
-|---|---|---|
-| Login required | No | Yes, real email/password |
-| Sample trades | Yes | No, starts empty |
-| Data saved | Browser localStorage | Private Supabase workspace |
-| Syncs between devices | No | Yes, after sign-in |
-| Trade screenshots | Optimized JPEG stored locally | Private Supabase Storage with signed URLs |
-| Export/import JSON | Yes | Yes |
-
-**Demo records are not automatically moved into a cloud account.** To move your own demo entries, export JSON in Demo Settings, sign in to your cloud account, then import the backup in Settings. Import replaces the currently loaded workspace.
-
-## ✨ Features included
-
-| Screen | Features |
-|---|---|
-| Landing | Premium English hero, dashboard preview, feature highlights, login/signup buttons |
-| Authentication | Real email login/signup (once Supabase is connected), forgot/reset password |
-| Dashboard | Glass hero, net P&L, win rate, weekly results, profit factor, animated equity curve, account snapshot, recent trades, mini calendar |
-| Add trade | Date, account, instrument, long/short, session, setup, realized P&L, risk, R:R, entry/exit/SL/TP, fees, mood, plan adherence, notes, chart screenshot |
-| Trade history | Account-specific table, live search, outcome filters, detailed trade view, edit/delete |
-| Accounts | Indian / Forex / Funded, 1-step / 2-step / Instant funded plans, configurable targets and limits, phase promotion and locks |
-| Trading calendar | Monthly P&L heatmap, daily trade detail, previous/next month |
-| Analytics | Equity curve, trade setup/symbol/session results, win/loss breakdown |
-| Performance | Plan adherence, emotional-loss insights, best trades, execution review |
-| Daily journal | Add, edit, delete reflections and moods |
-| Goals & habits | Create goals, track progress, complete small daily habits |
-| Withdrawals | Record payouts, statuses, notes, edit/delete |
-| Risk calculator | Risk amount, position units, estimated lots, R:R and profit potential |
-| Settings | Name, compact view, hide balances, JSON backup/import, demo reset, sign out |
-
-### Important behavior of funded challenges
-
-- A 2-step account starts in **Phase 1 → Phase 2 → Funded**. A 1-step account starts in Phase 1 then goes to Funded. An Instant account starts Funded.
-- When a profit target is reached or a loss rule is breached, **new trade entry is locked** for that account. Existing trades remain accessible for reviews and edits.
-- A passed phase can be advanced from the account card/detail. Each phase keeps its own trades and recalculates from a fresh stage P&L, rather than counting Phase 1 profits toward Phase 2.
-- Challenge thresholds use **realized closed-trade P&L**. These calculations **do not** monitor floating/unrealized losses, trailing drawdown, intraday equity, consistency requirements, or other proprietary prop-firm rules. Compare the exact rules supplied by your firm manually before relying on a status.
-- The application is **not linked to any broker** and does not place orders or import actual executions automatically.
-- Trading and performance analysis is for personal recordkeeping, not financial advice.
-
-### Important behavior of the risk calculator
-
-Results are **estimates**. Position unit/lot calculations assume quoted price movement is in the account currency; default contract multiplier is `100000`, suited to the standard FX-lot convention for some USD-quoted instruments. **XAUUSD, indices, INR contracts, and other assets require their actual contract multipliers and currency conversions**. Fees, margin, slippage, and spread are excluded.
-
-## 🎨 Customize branding and appearance
-
-- **Brand name / landing English copy:** `js/views.js` (`landing`, `authView`).
-- **Logo:** `assets/pp-logo.svg` — replace with your own SVG (keep the same filename), or update the path in `js/icons.js`.
-- **Colors, glass, blur, typography, responsive rules:** `styles.css` (`:root`).
-- **Starter demo data:** `js/data.js` (`demoWorkspace`).
-- **App features / UI:** `js/views.js`.
-- **Trade and form interactions, autosave:** `js/app.js`.
-- **Account and chart calculations:** `js/data.js`, `js/charts.js`.
-- **Auth and cloud storage calls:** `js/auth.js`, `js/config.js`.
-
-Fonts are delivered from Google Fonts with a system-font fallback. All charts are custom SVG and work without a charting CDN.
-
-## 🧪 Run a simple offline smoke test
-
-With Node.js 20+ installed:
+1. In Supabase → SQL Editor, run the full `supabase/schema.sql` script (also safe as a one-time upgrade from the V2 schema). It enables private workspace storage, screenshot bucket policies, unique username registry and recovery hash storage.
+2. On your PC, open terminal **inside this extracted project** (where `supabase/config.toml` lives) and use:
 
 ```bash
-node tests/smoke.mjs
+npx supabase login
+npx supabase link --project-ref YOUR_SUPABASE_PROJECT_REF
+npx supabase functions deploy username-auth --no-verify-jwt
 ```
 
-This tests demo fixture data, funded stage logic and rendering of main screens. It does not create a real Supabase account.
+   The function needs to accept unauthenticated registration/login/recovery requests. `supabase/config.toml` also declares `verify_jwt=false`. This public endpoint must be protected with further anti-bot measures/CAPTCHA for significant public traffic; a simple username/IP throttle is included, not enterprise-grade abuse prevention.
+3. Supabase automatically provides the Edge Function with environment variables including `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` on supported hosted projects. Confirm the function's server-side secrets are available in your environment. Never paste the service role key into public client files.
+4. Open `js-v3/config.js` and set **only** your Supabase Project URL and public **anon/publishable** API key. Older `js/config.js` config from V2 is **not** loaded by V3. Copy safe public values into `js-v3/config.js`.
 
-## 📂 Directory structure
-
-```text
-pp-trading-journey/
-├── index.html               Website entry point
-├── styles.css               Complete responsive design system
-├── assets/
-│   ├── pp-logo.svg
-│   └── favicon.svg
-├── js/
-│   ├── app.js               Interactions, actions, local/cloud save
-│   ├── auth.js              Supabase REST authentication and storage
-│   ├── config.js            Set Supabase public URL and key here
-│   ├── charts.js            Animated equity SVG, calendar, donuts, bars
-│   ├── data.js              Trade/account models and demo data
-│   ├── icons.js             Self-contained SVG icon set and brand
-│   ├── utils.js             Helpers and exports
-│   └── views.js             All pages, cards, tables, forms and modals
-├── supabase/
-│   └── schema.sql           Private workspace + screenshot RLS policies
-├── tests/
-│   └── smoke.mjs            Dependency-free rendering/logic checks
-├── .nojekyll                GitHub Pages compatibility
-├── 404.html                 Simple fallback redirect
-└── DEPLOY_GUIDE_HINDI.md
+```javascript
+export const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
+export const SUPABASE_ANON_KEY = 'YOUR_PUBLIC_ANON_OR_PUBLISHABLE_KEY';
 ```
 
-## ⚠ Known scope and operational limitations
+5. Commit/push that config change to GitHub, then create a new account on the deployed site. Enter your name, unique username, password, and confirmation. The **recovery key is shown only once**. Copy it to a secure password manager/offline backup before continuing. For forgotten passwords, enter username + current recovery key + new password; the site gives you a new recovery key after recovery.
+6. Test with **two different browsers**: register username A, try registering username A again (should say unavailable), log in correctly, log out, use recovery key to change password, and verify the old password and old recovery key no longer work.
 
-- A static frontend can't provide true secure login without configuring a backend. With blank `js/config.js` values, login/signup are intentionally disabled, rather than pretending to authenticate users.
-- The basic cloud data model saves one workspace JSON document per user, autosaved after changes; simultaneous editing in multiple browser tabs/devices may overwrite the latest version. Keep exports before major imports/edits.
-- Charts represent **closed journal entries only**, not broker-synced account equity or live balances.
-- P&L is tracked in **each account's currency**, with no automatic FX conversion. Mixed-currency payouts are not added into a misleading grand total.
-- Private screenshot objects are uploaded on new/edited entries; deleting or replacing a trade doesn't automatically garbage-collect old screenshot objects. They remain private and can be cleaned from Supabase Storage if needed.
-- Web hosting and Supabase usage are governed by the respective providers' current terms and quotas.
+### Important limitations
 
----
+- Username-only credentials do not send email or SMS recovery. **If you lose both your password and recovery key, self-service account recovery is impossible.** A trusted site administrator may have other options, but never assume automatic recovery.
+- Existing Supabase email-based V1/V2 auth users are **not automatically migrated**. Export JSON from your old account and import it into a new V3 username account if needed.
+- Supabase SQL/backend setup is **required** for all real authentication, cloud workspace data, and screenshot storage. Before backend configuration, Demo is available but personal changes are stored in browser localStorage only. Avoid using it as your sole backup.
+- Equity graph is derived from manually logged trades; broker live prices/floating drawdown/trailing firm-specific rules are not implemented.
+- If hosting a public registration website at scale, add CAPTCHA, stronger rate limiting, monitoring, account-abuse mitigation, server auditing, and security review before production rollout.
 
-**PP Trading Journey** — *Every trade tells a story. Make yours count.*
+## Files
+
+- `index.html` — V3 entrypoint and build badge
+- `styles.css` — base UI styles
+- `styles-v3.css` — premium light/dark theme, V3 gauges, interactive chart and signup UI
+- `js-v3/app.js` — browser state, trade events, theme settings and authentication screens
+- `js-v3/views.js` — 12 views, form templates, account meters, recovery key UI
+- `js-v3/charts.js` — real journal-based performance chart
+- `js-v3/auth.js` — username API client, secure Supabase JWT session/refresh, RLS workspace and screenshot storage
+- `js-v3/certificates.js` — optional daily, weekly/monthly/yearly report previews and PNG downloads
+- `supabase/schema.sql` — workspace storage with RLS, private screenshot bucket, username registry, rate limit table
+- `supabase/functions/username-auth/index.ts` — **server-only** unique username/auth/recovery implementation
+- `supabase/config.toml` — Edge Function auth verification settings
+- `tests/smoke.mjs` — deterministic Node checks (run `npm test`)
+
+## Testing
+
+```bash
+npm test
+```
+
+Automated render/data checks pass. A live Supabase environment was not supplied, so full backend integration and browser visual deployment tests must be performed in your deployment. Make a JSON backup before upgrades.

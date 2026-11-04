@@ -1,73 +1,51 @@
-# PP Trading Journey V2 — Existing GitHub Website Update
+# PP Trading Journey V3 — GitHub par updated website live kaise karein
 
-Ye **replacement ZIP** hai. Existing repository ka naam ya link change karna zaroori nahi hai.
+## A. Pehle existing trading data ka backup
 
-1. Purani website me **Settings → Export backup** kar lo (agar demo data important hai).
-2. New ZIP **Extract All** karo.
-3. Extracted folder ke **andar ki saari files aur folders** upload/replace karo, including NEW `styles-v2.css` and `js/certificates.js`. `index.html` repo root me hona chahiye.
-4. Existing GitHub repo → **Add file → Upload files**; matching file names replace/commit karo. Agar web uploader replacement rokta hai, file editor ya GitHub Desktop se same path wali files update karo.
-5. **Commit changes** karo. Pages already enabled ho to website automatically new version se deploy hogi.
-6. Website kholo aur **Ctrl+Shift+R** press karo. Old browser cache clear hoga.
-7. Check: sidebar me 5 tabs, Add Trade me + More options, Insights → Certificates.
+Old site: Settings → Export all data → JSON save karo. Demo data browser mein rehta hai; alag domain/browser se khud migrate nahi hota.
 
-⚠️ Agar real Supabase login pehle se connected tha, apne existing GitHub `js/config.js` me jo URL aur publishable/anon key hai unhe preserve karo. Blank ZIP config upload kar doge to login connection band ho jayega. **Never commit service-role or secret keys.**
+## B. Old GitHub website par naya design lagao
 
-Website open karne ke liye GitHub Pages ka URL use karo, `localhost` nahi. `localhost` sirf tab chalega jab tumhare computer par local server run ho.
+1. ZIP ko **Extract All** karo.
+2. GitHub Desktop install karke apni `pp-trading-journey` repository **Clone** karo.
+3. Extracted ZIP ke andar ke **sab files + folders** ko cloned repository ke **main/root folder** mein paste karo. `index.html` replace hona chahiye. Folder ke andar extra `PP_Trading_Journey_V3` folder mat banao.
+4. GitHub Desktop mein changes dikhenge: `index.html` modified, `styles-v3.css` added, **`js-v3/`** added. **Commit to main**, phir **Push origin**.
+5. GitHub repository → Settings → Pages → Deploy from a branch → main / (root).
+6. Repository → Actions mein latest Pages deployment green hona chahiye.
+7. Website `https://YOUR_USERNAME.github.io/pp-trading-journey/` Incognito mein kholo; bottom-right mein **V3 • NEW EXPERIENCE** dikhna chahiye.
+8. Agar V3 badge nahi dikh raha: repository ka root `index.html` check karo. Usmein `styles-v3.css` aur `js-v3/app.js` hona **zaroori** hai. Sirf new files upload karne se website update nahi hoti agar old index.html reh jaye.
 
-**Demo vs Login:** ZIP upload se landing page/demo live ho jata hai. Real signup/login ke liye separately Supabase credentials + SQL schema setup karna hota hai.
+## C. Demo mode
 
----
+Explore Demo → Overview, Add Trade, Accounts, Insights → Certificates aur Tools → Settings check kar sakte ho. Buy/Sell, dark/light, green/red chart aur yellow peak dot demo mein kaam karenge. Demo login real private account **nahi** hai.
 
-# PP Trading Journey — GitHub Par Website Kaise Upload Karein
+## D. Unique username + forgot key + cloud data
 
-## 1. Website live karna (easy, no coding required)
+Yeh GitHub ke static hosting se akela **possible nahi**. Supabase project/backend setup karna hoga.
 
-1. ZIP extract karo.
-2. GitHub par login karke **New repository** banao, jaise `pp-trading-journey`.
-3. Repository ke andar **Add file → Upload files** choose karo.
-4. Extract folder ke **andar ki saari files aur folders** upload karo. Dhyan rahe **index.html repository ke root mein ho**, extra nested folder mein nahin.
-5. **Commit changes** karo.
-6. Repository ki **Settings → Pages** kholo.
-7. **Source = Deploy from a branch**, **Branch = main**, **Folder = /(root)** select karke **Save** karo.
-8. GitHub Pages URL par website kholkar **Explore demo** click karo. Website demo mode mein turant kaam karegi.
+1. Supabase Dashboard → SQL Editor → `supabase/schema.sql` ka entire code run karo.
+2. PC mein extracted project ki directory terminal mein kholo.
+3. Commands:
 
-## 2. Real login/signup kaise on karein
+```bash
+npx supabase login
+npx supabase link --project-ref YOUR_SUPABASE_PROJECT_REF
+npx supabase functions deploy username-auth --no-verify-jwt
+```
 
-GitHub Pages sirf frontend website host karta hai. Real login aur private data sync ke liye Supabase connect karna zaroori hai.
+4. `js-v3/config.js` file mein apna **Supabase URL aur public anon/publishable key** set karo. **Service role/secret key GitHub par kabhi mat dalo.**
+5. Updated file GitHub par commit/push karo.
+6. Website mein Create account → Name + unique Username + Password + Confirm password bharo. Key ek hi baar dikhayi jayegi; secure jagah rakho.
+7. Forgot password mein Username + Forgot Key + New Password bharna. Password reset par **new key** save karna mandatory hai.
 
-1. supabase.com par ek free/paid project create karo (apni need ke hisaab se).
-2. Supabase **SQL Editor** mein ZIP ki `supabase/schema.sql` file ka poora SQL run karo.
-3. **Authentication → Providers → Email** mein email auth enable karo.
-4. **Authentication → URL Configuration** mein apni GitHub Pages URL ko Site URL aur Redirect URLs mein set karo.
-5. Supabase project ka **Project URL** aur **publishable/anon key** copy karo.
-6. GitHub par `js/config.js` file edit karo:
+**NOTE:** Email/mobile field nahi hai aur email/SMS recovery bhi nahi hai. Password aur key dono kho gaye to self-service recover nahi kar sakte. Purane email login accounts automatically migrate nahi honge; old backup import karna hoga.
 
-   ```js
-   export const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
-   export const SUPABASE_ANON_KEY = 'YOUR-PUBLISHABLE-KEY';
-   ```
+## E. Additional check
 
-7. Commit karo. Ab real email/password signup aur login chalega.
+- GitHub Pages URL `github.io` hoga, `localhost` nahi.
+- `index.html` direct root mein hai?
+- `styles-v3.css` aur `js-v3/` files root mein hain?
+- Actions ka latest deploy successful hai?
+- Supabase auth backend setup ke bina signup disabled rahega, lekin Demo chalega.
 
-**IMPORTANT:** `service_role` key, database password, ya private key GitHub par **kabhi upload mat karna**. Sirf publishable/anon key use karni hai. `schema.sql` ki RLS security policies enable honi chahiye.
-
-## 3. Demo aur real account mein difference
-
-**Demo mode:** website explore karo, trades add karo, charts dekho. Data sirf usi browser mein rahega.
-
-**Cloud mode:** Supabase setup ke baad sign up karo. Har trader ki private journal data Supabase mein save hogi aur login karne par devices ke beech mil sakti hai.
-
-Demo se cloud move karna ho: **Settings → Export all data** se JSON backup download karo. Cloud mein login karke **Settings → Import a backup** use karo (ye current cloud data replace karega).
-
-## 4. Website edit kahan karni hai?
-
-- Logo: `assets/pp-logo.svg`
-- Theme colors, glass effects, motion: `styles.css`
-- Home page message / layout / section: `js/views.js`
-- App functionality: `js/app.js`
-- Sample account aur trades: `js/data.js`
-- Login backend details: `js/config.js`
-
-### Note
-
-Funded-account loss/pass status sirf journal ke closed-trade P&L ke hisaab se hai. Floating losses, trailing drawdown aur different firm rules ka real-time verification website nahi karti. Broker se automatic trades import bhi nahi hota.
+Detailed instructions `README.md` mein hain.

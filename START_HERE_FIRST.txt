@@ -1,0 +1,19 @@
+PP TRADING JOURNEY V3 — IMPORTANT!
+
+1) Extract this ZIP.
+2) Open your GitHub repository with GitHub Desktop.
+3) COPY EVERY FILE/FOLDER IN THIS ZIP INTO THE EXISTING REPOSITORY ROOT.
+4) OVERWRITE the old index.html. This is the most important step!
+5) Confirm the repo root shows styles-v3.css and js-v3/ (complete folder).
+6) Commit changes AND click Push origin.
+7) Open GitHub repository > Actions > latest Pages deployment should be green.
+8) Visit github.io live link in Incognito. Bottom-right MUST say "V3 • NEW EXPERIENCE".
+
+NOTE: Demo UI works immediately. Real unique username signup/login/forgot-key requires
+Supabase SQL + Edge Function deployment, as detailed in README.md.
+
+Do not put a secret/service-role key in js-v3/config.js or any GitHub file.
+If you have an existing Supabase project, copy ONLY its public URL and anon key
+from the old js/config.js to js-v3/config.js.
+
+Also: Export a JSON backup of old trades before replacing/deploying.

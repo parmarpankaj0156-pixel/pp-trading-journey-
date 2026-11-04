@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import {demoWorkspace,freshWorkspace,accountStats,tradeStats} from '../js/data.js';
-import {pageView,shell,landing,authView,renderModal,riskCalculation} from '../js/views.js';
-import {periodRange,certificateData,certificateSVG,completedPeriodWithTrades} from '../js/certificates.js';
-import {dateOf,uuid} from '../js/utils.js';
+import {demoWorkspace,freshWorkspace,accountStats,tradeStats} from '../js-v3/data.js';
+import {pageView,shell,landing,authView,recoveryKeyView,renderModal,riskCalculation} from '../js-v3/views.js';
+import {periodRange,certificateData,certificateSVG,completedPeriodWithTrades} from '../js-v3/certificates.js';
+import {dateOf,uuid} from '../js-v3/utils.js';
 
 const w=demoWorkspace();
 assert.equal(w.accounts.length,4,'Sample accounts');
@@ -16,7 +16,16 @@ for(const route of ['dashboard','trades','calendar','accounts','analytics','perf
  assert.ok(!/\b(?:undefined|NaN)\b/.test(html),`${route} missing data`);
 }
 assert.ok(landing(c).includes('Grow with clarity.'),'Landing should render');
+assert.ok(pageView({...c,ui:{...ui,route:'dashboard'}}).includes('interactive-equity'),'Interactive chart');
+assert.ok(pageView({...c,ui:{...ui,route:'dashboard'}}).includes('rule-meter'),'Target and loss rule gauges');
 assert.ok(authView({...c,ui:{...ui,authTab:'login'}}).includes('Welcome back'),'Login should render');
+const signup=authView({...c,ui:{...ui,authTab:'signup'}});
+assert.ok(signup.includes('name="username"')&&signup.includes('name="name"')&&signup.includes('name="confirmPassword"'),'Registration fields');
+assert.ok(!signup.includes('name="email"')&&!signup.includes('name="phone"'),'No email or phone required');
+const recover=authView({...c,ui:{...ui,authTab:'forgot'}});
+assert.ok(recover.includes('name="recoveryKey"')&&recover.includes('name="newPassword"'),'Recovery via secure key');
+assert.ok(recoveryKeyView({type:'signup',key:'PPJ-'+'A'.repeat(64)}).includes('shown <strong>only once'),'Recovery key one-time display');
+
 for(const modalType of ['trade','account','withdrawal','note','goal','trade-detail','account-detail','day-detail']){
  const html=renderModal({...c,ui:{...ui,modal:{type:modalType,id:modalType==='trade-detail'?w.trades[0].id:modalType==='account-detail'?w.accounts[0].id:'',date:dateOf()}}});
  assert.ok(html.includes('modal-dialog'),`${modalType} modal`);
@@ -25,6 +34,8 @@ for(const modalType of ['trade','account','withdrawal','note','goal','trade-deta
   assert.ok(html.includes('more-trade-details'),'Advanced fields collapsible');
   assert.ok(html.includes('name="time"'),'Trade time');
   assert.ok(html.includes('name="entryType"'),'Entry type');
+  assert.ok(html.includes('trade-direction-choice')&&html.includes('BUY')&&html.includes('SELL'),'Buy/sell in basic form');
+  assert.ok(html.indexOf('trade-direction-choice')<html.indexOf('more-trade-details'),'Buy/sell must be visible');
  }
 }
 assert.ok(riskCalculation(ui.risk).includes('$100.00'),'Risk 1% of 10K should be $100');
@@ -43,4 +54,4 @@ const yesterday=dateOf(-1);const lossCert=certificateData({profile:{name:'Demo t
 assert.equal(lossCert.net,-82);assert.equal(lossCert.greeting,'Better luck next time.');
 assert.ok(certificateSVG(lossCert).includes('#df5570'));
 assert.ok(completedPeriodWithTrades(w,w.accounts[0],'weekly',52),'Archives should find past trades');
-console.log('✓ PP Trading Journey v2: 12 screens, 8 modals, quick-entry fields, charts, funded progression, certificates and risk calculations passed.');
+console.log('✓ PP Trading Journey v3: 12 screens, 8 modals, quick-entry fields, charts, funded progression, certificates and risk calculations passed.');

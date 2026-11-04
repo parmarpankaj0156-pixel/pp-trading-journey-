@@ -1,7 +1,1 @@
-{
-  "name": "pp-trading-journey",
-  "private": true,
-  "version": "2.0.0",
-  "type": "module",
-  "description": "Static GitHub Pages-ready premium trading journal"
-}
+{"name":"pp-trading-journey","private":true,"version":"3.0.0","type":"module","scripts":{"test":"node tests/smoke.mjs"},"description":"Premium GitHub Pages journal with secure Supabase username auth function"}

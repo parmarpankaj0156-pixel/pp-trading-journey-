@@ -23,3 +23,23 @@ drop policy if exists "Traders delete own screenshots" on storage.objects;
 create policy "Traders upload own screenshots" on storage.objects for insert to authenticated with check (bucket_id='trade-screenshots' and (storage.foldername(name))[1]=auth.uid()::text);
 create policy "Traders view own screenshots" on storage.objects for select to authenticated using (bucket_id='trade-screenshots' and (storage.foldername(name))[1]=auth.uid()::text);
 create policy "Traders delete own screenshots" on storage.objects for delete to authenticated using (bucket_id='trade-screenshots' and (storage.foldername(name))[1]=auth.uid()::text);
+
+-- V3: username-only identity. NEVER let browser clients read or write this table.
+-- All operations are performed by the deployed Supabase Edge Function with its server-side service-role key.
+create table if not exists public.pp_username_accounts (
+ username text primary key check (username ~ '^[a-z][a-z0-9_]{2,23}$'),
+ user_id uuid not null unique references auth.users(id) on delete cascade,
+ auth_email text not null unique,
+ recovery_digest text not null,
+ created_at timestamptz not null default now()
+);
+alter table public.pp_username_accounts enable row level security;
+revoke all on public.pp_username_accounts from anon, authenticated;
+
+create table if not exists public.pp_auth_throttle (
+ throttle_key text primary key,
+ count integer not null default 0,
+ window_until timestamptz not null
+);
+alter table public.pp_auth_throttle enable row level security;
+revoke all on public.pp_auth_throttle from anon, authenticated;
