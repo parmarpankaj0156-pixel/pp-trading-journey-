@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import {accountEquitySeries,lineChart} from '../js-v4/charts.js';
-import {pageView} from '../js-v4/views.js';
-import {freshWorkspace} from '../js-v4/data.js';
+import {accountEquitySeries,lineChart} from '../js-v5/charts.js';
+import {pageView} from '../js-v5/views.js';
+import {freshWorkspace} from '../js-v5/data.js';
 const a={id:'selected',name:'Selected Funded',currency:'USD',kind:'forex',stage:'live',size:10000,createdAt:'2026-09-01'};
 const b={id:'other',name:'Other Account',currency:'INR',kind:'indian',stage:'live',size:150000,createdAt:'2026-08-01'};
 const w=freshWorkspace('Trading tester');w.accounts=[a,b];w.profile.defaultAccountId=a.id;
@@ -44,10 +44,10 @@ for(const account of [a,b]){
  const html=pageView(c);
  assert.ok(html.includes('Selected account')||html.includes('YOUR EQUITY JOURNEY'));
  assert.ok(html.includes(`data-range="7"`) && html.includes(`data-range="14"`) && html.includes(`data-range="30"`) && html.includes(`data-range="all"`));
- assert.ok(html.includes(`>${account.name}</b>`),'Account name must be visible beside chart');
+ assert.ok(html.includes(`>${account.name}</option>`),'Account selector must list the selected account');
  assert.ok(html.includes(`data-tone="${account.id==='selected'?'profit':'profit'}"`));
 }
 const blank=accountEquitySeries({trades:[]},a,'7',asOf);
 assert.equal(blank.series.length,0);
 assert.ok(lineChart(blank.series).includes('No recorded trades'));
-console.log('✓ V4 chart: selected-account isolation, 7/14/30/all windows, fees, cumulative balance, smooth single-color line, peak dot, chronological inspector, empty state.');
+console.log('✓ V5 chart: selected-account isolation, 7/14/30/all windows, fees, cumulative balance, smooth single-color line, peak dot, chronological inspector, empty state.');

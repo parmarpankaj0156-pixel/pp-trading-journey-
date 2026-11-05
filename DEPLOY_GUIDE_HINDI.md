@@ -1,43 +1,62 @@
-# PP Trading Journey V4 — GitHub par purani website replace karna
+# PP Trading Journey V5 — GitHub Update Guide (Hindi)
 
-## 1. Backup
-Purani site kholkar **Settings > Export all data** se JSON backup download karo. ZIP GitHub par replace karne se browser ka data automatically delete nahi hota, lekin backup zaroor rakhna.
+## V5 mein kya naya hai?
 
-## 2. Purane repository par update (IMPORTANT)
-V4 se naya project / nayi repository mat banana agar existing URL same rakhna hai.
+- Overview ke **Performance chart ke andar hi account choose** kar sakte ho. **7D / 14D / 30D / All Time** uske bagal mein hain. Insights page mein bhi ye controls hain.
+- Selected account ke alawa kisi aur account ka P&L chart mein mix nahi hoga. Account switch karne se daily amount, stats, recent trades, calendar, funded target indicator sab update honge.
+- Chart **overall account net profit** par green, net loss par red hai. Highest positive profit ka yellow peak dot hai. Click/tap se date, daily P&L aur running P&L dikhega.
+- Chart ke niche **Best Day, Toughest Day, Active Days** ka chhota summary.
+- Premium white glass, dark glass, soft hover lift, tap-press feedback aur improved mobile controls.
+- Daily Pulse performance ke hisab se change hota hai. Purane Add Trade/certificates/journal/features preserved hain.
+- Cloud load error ke waqt blank account silently create nahi hoga, taaki existing saved account overwrite na ho.
 
-**Sabse reliable tarika GitHub Desktop:**
-1. [GitHub Desktop](https://desktop.github.com/) install karo aur sign in karo.
-2. **File > Clone repository** mein apna existing `pp-trading-journey` repo choose karo.
-3. ZIP ko **Extract All** karo. Extracted folder ke **andar ki** files dekho.
-4. Is folder ke contents (root `index.html`, `styles.css`, `styles-v3.css`, `styles-v4.css`, `js-v4` folder, assets, etc.) ko cloned repository ke main folder mein copy karo.
-5. Windows puche to **Replace files in destination** dabao.
-6. Agar V3 mein Supabase configured tha, **old `js-v3/config.js` ka public URL + publishable/anon key NEW `js-v4/config.js` mein set karo**. Service-role/secret key kabhi public GitHub par mat dalna.
-7. GitHub Desktop mein changes dikhne chahiye. Message likho `Update PP Trading Journey V4` aur **Commit to main**, phir **Push origin**.
+## STEP 1 — Backup zaroor lo
 
-**Browser-only upload**: GitHub > existing repo > `Add file` > `Upload files` se files ko **same paths** par replace karna hai. `index.html` repository root mein hi hona chahiye; ZIP ko as a ZIP upload nahi karna. Agar drag-drop folders overwrite na ho paye, GitHub Desktop method use karo.
+Purani live website mein **Settings → Export all data** se JSON file download karo. Isi backup ko safe rakho. GitHub source files aur tumhare saved trades alag cheezein hain.
 
-## 3. Confirm GitHub Pages
-Repository > Settings > Pages > Source `Deploy from a branch`, Branch `main`, Folder `/(root)`.
-Repository > Actions mein latest Pages deployment successful ho. Website ka URL pehle jaisa hi rahega.
+## STEP 2 — SAME GitHub repository mein V5 update
 
-## 4. V4 actually live hua kya?
-- Live website private/incognito tab mein kholna.
-- Bottom-right **V4 • ACCOUNT CHART** likha hona chahiye.
-- Browser se `view-source:YOUR-LIVE-URL` open karke `js-v4/app.js` search kar sakte ho.
-- Agar version purana hai: GitHub root `index.html` replace nahi hui, Pages kisi aur branch/folder ko serve kar raha hai ya old cache hai. Hard refresh `Ctrl + Shift + R` try karo.
+**Recommended: GitHub Desktop** (sirf GitHub browser upload mein wrong folder ka risk hai):
 
-## 5. New chart kaise use karna hai
-1. Website ke top header se **account select** karo.
-2. Overview ke Performance card mein selected account ka naam dikhna chahiye.
-3. Chart buttons: **7D, 14D, 30D, All Time**. Dono Overview aur Insights mein same setting apply hogi.
-4. Chart ka **single green/red color** selected account ki *overall cumulative net P&L* par depend karta hai (broker fees deduct karke), filtered window ke andar aane wale har win/loss par nahi. Zero P&L par neutral.
-5. Top amount **all-time account net P&L** hai. Niche 7/14/30 days ka period change separately dikhata hai. All Time sabhi historical trades (up to today) dikhata hai.
-6. Tooltip: mouse hover ya chart pe touch/click karne par day result aur cumulative net dikhte hain.
-7. Yellow dot visible selected range ka highest positive cumulative P&L highlight karta hai.
+1. GitHub Desktop install karo aur account login karo.
+2. **File → Clone repository** mein existing `pp-trading-journey` select karo. Agar already clone hai, usi repository folder ko kholo.
+3. V5 ZIP **Extract All** karo. Extracted folder ke **andar** `index.html`, `js-v5`, `styles-v5.css` etc. dikhni chahiye.
+4. Extracted folder ke **andar ka poora content** cloned repository ke **root** mein paste karo. **Replace files in destination** select karo.
+5. `index.html` ki old copy zaroor replace honi chahiye. Ab usme `./js-v5/app.js?v=5.0.0` aur `./styles-v5.css?v=5.0.0` hona chahiye.
+6. **IMPORTANT FOR OLD SUPABASE USERS:** old `js-v4/config.js` se **sirf PUBLIC** Supabase URL aur publishable/anon key copy karke new `js-v5/config.js` mein add karo. Service-role/secret key GitHub par kabhi mat daalo. Backend SQL/Edge Function records ko bina check kiye reset mat karna.
+7. GitHub Desktop → **Commit to main** → **Push origin**. Sirf local commit se live site update nahi hoti.
+8. GitHub repo → **Actions** → latest **Pages** deployment successful (green) check karo.
 
-## 6. Supabase / user accounts
-GitHub Pages static frontend host karta hai. Real username/password + recovery key ke liye V3 se included Supabase schema aur Edge Function deploy karna zaroori hai. V4 code compatible hai, lekin Supabase credentials aur Edge Function alag setup karna hoga. Existing database ko dubara reset karne ki zaroorat nahi (schema migrate karne se pehle backup/SQL review karo).
+## STEP 3 — Live website par V5 verify
 
-## 7. Agar chart phir bhi purana dikhe
-Mujhe live Pages URL aur GitHub repository URL bhejo; main public site ke root `index.html` aur assets compare karke bata sakta hoon kis path ka problem hai.
+1. Existing URL open karo — `https://USERNAME.github.io/pp-trading-journey/` (USERNAME ko replace karo). `localhost` URL GitHub Pages ke liye nahi hota.
+2. Incognito tab mein kholo, ya **Ctrl + Shift + R** refresh karo.
+3. Bottom-right **`V5 • GLASS EDITION`** label dikhna chahiye.
+4. Overview → Performance chart mein **TRADING ACCOUNT** dropdown click karo; naya account select karo. Neeche **7D / 14D / 30D / All Time** choose karo.
+5. New account ke chart, balance, calendar, challenge meters ko check karo.
+
+**Agar V5 label nahi hai:** `index.html` replace nahi hui, wrong root/folder mein upload hua, deployment fail hua ya old GitHub Pages branch configured hai. `Settings → Pages` mein **main/(root)** verify karo.
+
+## STEP 4 — Data saving ka important rule
+
+- Demo account ki entries **sirf isi browser mein localStorage** par save hoti hain. Same domain/browser par code update ke baad aam taur par bani rehti hain; browser storage delete hone par chali ja sakti hain.
+- Real username/password login, unique username aur private cloud sync ke liye **Supabase** setup aur deployment zaroori hai. GitHub Pages apne aap database ya secure login provide nahi karta.
+- Agar cloud data temporarily load nahi hua, V5 blank workspace edit karne ke bajay sign-in retry karne dega. Ye unintentional overwrite se protection hai; successful cloud save ka substitute nahi hai.
+- Backup JSON ko regularly download karke safe rakho.
+
+## STEP 5 — Local test (optional)
+
+Extracted V5 folder mein terminal kholo:
+
+```
+python -m http.server 5500
+```
+
+Tab browser mein `http://localhost:5500` kholo; command band karoge to localhost refused to connect dikh sakta hai. GitHub live site ke liye iski zarurat nahi.
+
+## Troubleshooting
+
+- Blank screen: browser console mein file path error check karo; `js-v5` folder upload hua hai ya nahi.
+- Old design: `view-source:LIVE-URL` mein `js-v5` search karo.
+- Login disabled: `js-v5/config.js`, Supabase SQL aur username-auth Edge Function setup missing ho sakta hai.
+- Files upload karne ke baad bhi old data dikhna normal hai; naye app ka same saved demo workspace use karna intentional hai.

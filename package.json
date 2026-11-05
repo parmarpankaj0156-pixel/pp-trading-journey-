@@ -1,10 +1,10 @@
 {
   "name": "pp-trading-journey",
   "private": true,
-  "version": "4.0.0",
+  "version": "5.0.0",
   "type": "module",
   "scripts": {
-    "test": "node tests/smoke.mjs && node tests/chart-v4.mjs"
+    "test": "node tests/smoke.mjs && node tests/chart-v4.mjs && node tests/chart-v5.mjs"
   },
-  "description": "Premium GitHub Pages journal V4 with account-scoped equity chart and Supabase username auth integration"
+  "description": "PP Trading Journey V5 premium glass journal with in-chart account switcher and selected-period insights"
 }

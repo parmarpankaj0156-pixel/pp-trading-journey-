@@ -1,58 +1,59 @@
-# PP Trading Journey V4
+# PP Trading Journey V5 — Glass Edition
 
-A premium Apple-style, frosted-glass trading journal, deployable as a static GitHub Pages website, with an optional Supabase backend for real username-only authentication and private cloud sync.
+A responsive, Apple-inspired trading journal for GitHub Pages. **V5 preserves your V4 account/trade data model** and adds an in-chart account picker, polished tactile glass interface and period-specific insights.
 
-## Highlights
+## New in V5
 
-- **Selected-account chart** on Overview and Insights — never combines different account currencies, balances or trades.
-- **7D / 14D / 30D / All Time** equity timeline, with actual chronological time spacing.
-- **Single status color:** entire line green when the selected account's all-time **net** P&L is positive, red when negative, neutral when flat. No alternating red/green trade segments.
-- **Yellow peak dot** shows the highest positive cumulative profit visible in the selected period.
-- **Inspect values:** tap/hover chart for the calendar date, that day's net P&L, and account cumulative net P&L.
-- Historical P&L is carried into each date window instead of resetting the chart to zero. All Time spans earliest account history to today.
-- The selected account is changed via the top-bar account switcher; same selected account is used for summary, chart, recent trades, analytics and funded rules.
-- Premium bright pearl and dark themes; Add Trade with Buy/Sell, Profit/Loss and expandable optional fields; funded-account progress and risk limits; automated weekly/monthly/yearly performance certificates; journal, goals, calendar, risk calculator, and JSON backups.
-- Optional **Supabase username/password signup and single-use recovery key** integration (requires backend setup). Never store real passwords client-side.
+- **Chart account switcher lives *inside* the Performance panel** on Overview and Insights, next to **7D, 14D, 30D, All Time**. The previous duplicate topbar selector is removed on those two pages; it remains on other pages where you still need it.
+- The active selection controls **all** relevant widgets: account equity, net P&L, win rate, daily pulse, calendar, trade list, insights and challenge meters.
+- **Single-color cumulative equity** — green if selected account is in net profit, red if net loss, neutral at break-even. Yellow dot marks highest positive visible cumulative account profit. Hover/tap inspection shows date, daily P&L and cumulative P&L.
+- **Compact per-period stats** — Best Day, Toughest Day, Active Days, based only on the selected account and range, with fees deducted.
+- Pearl-white/deep-blue glass surfaces with stronger focus states, touch response, better readability and considerate hover/lift animations, including a floating chart cursor indicator.
+- **Daily Pulse** message adapts to account performance instead of showing the same text to everyone.
+- **Data-safety correction** — initial cloud workspace load failure no longer creates an editable empty workspace that could overwrite a real account; sign-in must be retried.
 
-## Quick deploy
+## Existing features retained
 
-1. Extract ZIP so **`index.html` is at the root of your existing GitHub repository**.
-2. Commit and push all files — especially `index.html`, `styles-v4.css` and the entire `js-v4/` folder.
-3. GitHub Pages: Settings > Pages > Deploy from a branch > `main` / `(root)`.
-4. After a successful deployment, look for **`V4 • ACCOUNT CHART`** at bottom-right. If missing, the old `index.html` is still being served.
-5. If using Supabase, configure **`js-v4/config.js`** with the public project URL + public/anon key, and deploy the supplied SQL and Edge Function as needed. **Never** put the Supabase service-role key in a static frontend.
+Quick Add Trade (including Buy/Sell and expandable optional fields), multi-account trading journal, funded challenge target/loss progress, trade screenshots, calendar, reports, weekly/monthly/yearly certificates and on-demand daily certificate, payout tracking, reflections, goals, risk calculator, JSON export/import, light/dark themes and optional username/password + one-time recovery-key backend.
 
-Detailed instructions (Hindi): [`DEPLOY_GUIDE_HINDI.md`](DEPLOY_GUIDE_HINDI.md).
+## Deploy on existing GitHub Pages
 
-## Local testing
+1. **First export a JSON backup** inside the existing website: **Settings → Export all data**.
+2. Extract the ZIP and **copy the contents, not the top-level folder or the ZIP**, into the root of the **same existing repository**. Prefer GitHub Desktop to replace matching files and push them.
+3. `index.html` must be at the repository root, referencing `js-v5/app.js` and `styles-v5.css`. Those are **new cache-busting paths** so the browser loads V5 assets.
+4. Check **Settings → Pages → `main` / `(root)`** and **Actions → latest Pages deployment green**.
+5. Open site in private/incognito tab. Verify the bottom-right badge says **V5 • GLASS EDITION**. If it says V4 or earlier, the Pages branch/root index was not updated.
+6. If real login was configured before: copy the previous **PUBLIC** Supabase project URL and publishable/anon key to `js-v5/config.js`. Never commit service-role or other secret keys. Backend SQL/Edge Function setup is still required for real username authentication.
 
-From this folder:
+See [DEPLOY_GUIDE_HINDI.md](DEPLOY_GUIDE_HINDI.md) for detailed Hindi instructions.
+
+## Run locally
 
 ```sh
 python -m http.server 5500
 ```
 
-Open `http://localhost:5500`. The local server must be running; opening localhost without a server produces `ERR_CONNECTION_REFUSED`.
+Then visit `http://localhost:5500`. The terminal must remain running. On GitHub Pages you do **not** use a localhost URL.
 
-To run offline code tests (Node.js):
+## Test
 
 ```sh
 npm test
 ```
 
-## File layout
+These are automated module/render/data tests; a full live-browser and deployed Supabase end-to-end test is **not** included. Make a backup before testing with private trading data.
 
-- `index.html` — live V4 entry point, static GitHub Pages compatible.
-- `styles.css`, `styles-v3.css`, `styles-v4.css` — foundation + premium visuals + focused V4 chart styles.
-- `js-v4/app.js` — navigation, data persistence, chart interactions and modal workflows.
-- `js-v4/charts.js` — account-scoped equity series, smooth one-color SVG line, peak dot, tooltip data.
-- `js-v4/views.js` — interface and 7D / 14D / 30D / All Time controls.
-- `js-v4/data.js` — account models, demo data, stats and funded rules.
-- `js-v4/auth.js`, `js-v4/config.js` — Supabase integration (configure before using real sign-in).
-- `js-v4/certificates.js` — performance certificates and PNG export.
-- `supabase/` — schema / Edge Function for secure username-based accounts.
-- `tests/` — smoke and account-isolation regression tests.
+## Core files
 
-## Notes
+- `index.html` — site entry point
+- `styles.css`, `styles-v3.css`, `styles-v4.css`, `styles-v5.css` — visual system
+- `js-v5/app.js` — UI, chart interactions, persistence and event handling
+- `js-v5/views.js` — components, account controls and insights
+- `js-v5/charts.js` — P&L series, SVG chart and hover data
+- `js-v5/data.js`, `js-v5/certificates.js` — account stats / certificates
+- `js-v5/auth.js`, `js-v5/config.js`, `supabase/` — optional cloud integration
+- `tests/` — Node module regression tests
 
-Data in demo mode is saved in local browser storage only and won't sync across devices. Real login and cloud saving require successful Supabase setup. The GitHub Pages website is public source code; do not embed secrets. Chart figures are realized P&L calculated from recorded trades, **after broker fees**, not broker API/live market prices. Funding challenge rules are estimates and do not replace prop-firm statements.
+### Data and privacy
+
+The demo uses `localStorage` on the **current browser/device only**, retaining the same storage key as earlier versions. Installing a new ZIP or pushing new frontend code does not inherently erase this local data, but clearing site data, changing domains, using a different browser or resetting demo can. Real shared-device data and authenticated cloud sync require the supplied Supabase backend to be properly configured and tested. Charts represent **your manually recorded closed trades**, not broker-connected real-time prices. Always keep exported backups.

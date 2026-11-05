@@ -1,31 +1,37 @@
-PP TRADING JOURNEY — V4 ACCOUNT CHART EDITION
-==============================================
-THIS ZIP IS FOR UPDATING THE SAME EXISTING GITHUB PAGES SITE.
+PP TRADING JOURNEY — V5 GLASS EDITION
+=====================================
+This ZIP upgrades your EXISTING GitHub Pages site. Do not upload the ZIP itself.
 
-WHAT'S NEW:
-- Dashboard and Insights chart shows ONLY the selected account from the top account selector.
-- 7D / 14D / 30D / ALL TIME date controls.
-- ONE continuous green line when the selected account's overall net P&L > 0;
-  ONE red line when overall net P&L < 0; neutral when zero.
-- Yellow marker highlights the highest visible positive cumulative account profit.
-- Tap / hover gives date, daily net and cumulative net. Trades' broker fees are deducted.
-- Date filtering does not erase earlier account earnings: earlier cumulative P&L is carried forward.
-- Existing V3 features remain (trades, login integration, certificates, accounts, dark/light themes).
+WHAT CHANGED
+1. ACCOUNT SWITCHER INSIDE the Performance chart card on Overview AND Insights,
+   right next to the 7D / 14D / 30D / All Time buttons.
+2. Choosing an account updates the chart, key dashboard stats, funded progress,
+   calendar and recent trades using ONLY that account.
+3. Best day / Toughest day / Active days mini-insights for the selected chart period.
+4. Softer pearl-white glass, brighter accents, tactile hover/press feedback,
+   polished dark theme, mobile layouts and chart hover/touch marker.
+5. Dynamic motivational daily pulse based on your selected account's performance.
+6. SAFETY: if loading existing cloud data fails, the app now stops rather than
+   silently constructing an empty editable workspace that might overwrite records.
+7. Existing Add Trade, funded accounts, certificates, settings, password recovery,
+   journal and JSON backup remain.
 
-HOW TO UPDATE EXISTING GITHUB PAGES SITE:
-1. MAKE A JSON BACKUP of your trades (Settings -> Export all data).
-2. Download and extract this ZIP to a folder on your computer.
-3. Open your existing GitHub repository, and replace the root index.html and
-   the rest of the contents with this V4 archive (same paths).
-   BEST METHOD: clone repository using GitHub Desktop, copy extracted V4 files
-   over it, commit, and PUSH ORIGIN. Uploading to a new folder WON'T update site.
-4. If you configured Supabase in V3, COPY your old js-v3/config.js values
-   INTO the NEW js-v4/config.js (public project URL and public/anon key ONLY).
-   NEVER copy or publish a secret Supabase service-role key.
-5. Confirm root index.html references "./js-v4/app.js?v=4.0.0".
-6. In GitHub Actions check the latest Pages deployment shows a green check.
-7. Open the published site in a new private/incognito window.
-   VERIFY bottom-right label "V4 • ACCOUNT CHART". If it's not visible,
-   GitHub is serving an old index.html or the wrong Pages branch/folder.
+UPLOAD TO THE SAME GITHUB REPOSITORY
+1. Export JSON backup of your trades first (Settings > Export all data).
+2. Extract this archive. Upload the CONTENTS of this folder to your EXISTING
+   GitHub repository ROOT. Recommended: GitHub Desktop > Clone > Copy extracted
+   files and folders > Replace > Commit > Push origin.
+3. IMPORTANT: Root index.html MUST be replaced. It loads js-v5/app.js and
+   styles-v5.css. New files in the wrong folder won't update the website.
+4. If Supabase was configured: copy only the PUBLIC project URL and
+   publishable/anon key from old js-v4/config.js into new js-v5/config.js.
+   NEVER commit Supabase secret or service-role keys.
+5. Wait for GitHub Actions > Pages deployment to finish successfully.
+6. Visit your SAME Pages URL in a PRIVATE/INCOGNITO browser window.
+7. Confirm the small footer label says: V5 • GLASS EDITION.
 
-MORE DETAILS: DEPLOY_GUIDE_HINDI.md
+HELP
+- Details: DEPLOY_GUIDE_HINDI.md, README.md.
+- Demo mode saves ONLY on that browser/device, not in GitHub.
+- Real username signup/login/cloud requires Supabase backend setup.
+- Charts show RECORDED closed trades, not live broker or exchange prices.

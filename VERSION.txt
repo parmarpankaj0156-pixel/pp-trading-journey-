@@ -1,4 +1,7 @@
-PP Trading Journey
-VERSION: 4.0.0
-FEATURE: selected-account cumulative equity chart; 7D, 14D, 30D, All Time; one-color net P&L; tap inspection; yellow peak marker.
-ENTRY: index.html -> js-v4/app.js
+PP Trading Journey V5 — GLASS EDITION
+Build: 5.0.0
+Entry: index.html
+App: js-v5/app.js
+New CSS: styles-v5.css
+Visibility badge: V5 • GLASS EDITION
+Features: in-chart account switcher, 7D/14D/30D/All Time, compact period insights, touch/glass refinements, safer cloud load.
