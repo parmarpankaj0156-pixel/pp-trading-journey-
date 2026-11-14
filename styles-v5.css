@@ -98,6 +98,18 @@ html[data-theme="dark"] .equity-currency-switch-v5,html[data-theme="dark"] .port
 html[data-theme="dark"] .equity-currency-switch-v5>small,html[data-theme="dark"] .portfolio-metrics-v5>div>small,html[data-theme="dark"] .portfolio-currency-values-v5>strong small,html[data-theme="dark"] .portfolio-account-head-v5>span{color:#a9bad7}
 html[data-theme="dark"] .portfolio-metrics-v5>div>strong,html[data-theme="dark"] .portfolio-account-row>span:first-child strong,html[data-theme="dark"] .portfolio-account-head-v5>strong{color:#edf3ff}
 @media(max-width:760px){.portfolio-overview-v5{padding:18px 15px}.portfolio-metrics-v5{grid-template-columns:1fr;gap:8px}.portfolio-metrics-v5>div{padding:12px 13px}.portfolio-account-row{grid-template-columns:minmax(0,1fr) auto;gap:8px}.portfolio-status{grid-column:1/-1}.portfolio-currency-values-v5>strong{font-size:14px}}
+.portfolio-purchase-head-v5{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:19px 0 9px;padding-top:15px;border-top:1px solid rgba(174,194,224,.34)}
+.portfolio-purchase-head-v5>strong{font-size:13px;font-weight:850;color:var(--text,#273650)}
+.portfolio-purchase-head-v5>span{font-size:10px;color:var(--muted,#8290a8)}
+.portfolio-purchase-list-v5{display:grid;gap:7px}
+.portfolio-purchase-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 13px;border-radius:12px;background:rgba(239,245,255,.43);border:1px solid rgba(174,192,225,.26)}
+.portfolio-purchase-row>span{display:flex;flex-direction:column;gap:4px;min-width:0}
+.portfolio-purchase-row>span strong{font-size:12px;font-weight:800;color:var(--text,#2a3954)}
+.portfolio-purchase-row>span small{font-size:10px;color:var(--muted,#8290a8)}
+.portfolio-purchase-row>strong{font:800 13px Manrope,'DM Sans',sans-serif;white-space:nowrap}
+html[data-theme="dark"] .portfolio-purchase-head-v5>strong,html[data-theme="dark"] .portfolio-purchase-row>span strong{color:#edf3ff}
+html[data-theme="dark"] .portfolio-purchase-head-v5>span,html[data-theme="dark"] .portfolio-purchase-row>span small{color:#a9bad7}
+html[data-theme="dark"] .portfolio-purchase-row{background:rgba(31,51,81,.78);border-color:rgba(103,133,184,.25)}
 /* Optional trade time control */
 .trade-time-details{border:1px solid #d7e1f1;border-radius:17px;background:linear-gradient(140deg,#f7faff,#f3f6ff);overflow:hidden}
 .trade-time-details summary{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;padding:13px 16px;color:#334866;font-size:13px;font-weight:800;list-style:none}
