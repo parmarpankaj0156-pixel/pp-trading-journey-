@@ -55,6 +55,37 @@ export function demoWorkspace(){
   w.goals=[{id:'g1',title:'Follow my trade plan',target:20,progress:13,unit:'trades'},{id:'g2',title:'Complete weekly reviews',target:8,progress:5,unit:'reviews'},{id:'g3',title:'Maintain risk discipline',target:30,progress:22,unit:'sessions'}];
   w.profile.defaultAccountId='a1';w.accounts=assignFundedAccountNumbers(w.accounts);return w;
 }
+export function portfolioSummary(workspace){
+  const accounts=Array.isArray(workspace?.accounts)?workspace.accounts:[];
+  const trades=Array.isArray(workspace?.trades)?workspace.trades:[];
+  const currencyMap=new Map();
+  const bucketFor=currency=>{
+    const key=currency||'USD';
+    if(!currencyMap.has(key))currencyMap.set(key,{currency:key,net:0,invested:0,purchases:0,tradeCount:0,accountCount:0});
+    return currencyMap.get(key);
+  };
+  const byAccount=new Map();
+  for(const account of accounts){
+    const own=trades.filter(t=>t.accountId===account.id);
+    const net=sum(own,t=>Number(t.result||0)-Number(t.fees||0));
+    byAccount.set(account.id,{account,net,tradeCount:own.length});
+    const bucket=bucketFor(account.currency);
+    bucket.net+=net;bucket.tradeCount+=own.length;bucket.accountCount+=1;
+  }
+  // Count only original/root purchases. Automatically created Phase 2 and Live
+  // successors have parentAccountId and cost 0, so they are not double-counted.
+  const purchases=accounts.filter(a=>!a.parentAccountId&&(a.kind==='funded'||Number(a.cost)>0));
+  for(const account of purchases){
+    const bucket=bucketFor(account.currency);
+    bucket.purchases+=1;
+    bucket.invested+=Math.max(0,Number(account.cost)||0);
+  }
+  return {
+    purchaseCount:purchases.length,
+    accounts:[...byAccount.values()],
+    currencies:[...currencyMap.values()].sort((a,b)=>a.currency.localeCompare(b.currency))
+  };
+}
 export function accountTrades(w,accountId,phase=null){return w.trades.filter(t=>t.accountId===accountId&&(!phase||t.phase===phase));}
 export function accountStats(w,a){
   if(!a)return {all:[],stageTrades:[],net:0,dayPnL:0,winRate:0,wins:0,losses:0,total:0,profitFactor:0,avgRR:0,stageNet:0,target:0,progress:0,status:'active',maxDrawdown:0};
