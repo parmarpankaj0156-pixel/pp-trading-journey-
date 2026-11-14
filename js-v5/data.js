@@ -26,7 +26,7 @@ export function nextFundedAccountNumber(workspace){return Math.max(0,...(workspa
 export function normalizeWorkspace(obj) {
   const d=freshWorkspace();
   if(!obj || typeof obj!=='object') return d;
-  return {...d,...obj,profile:{...d.profile,...(obj.profile||{})},accounts:assignFundedAccountNumbers(Array.isArray(obj.accounts)?obj.accounts.map(a=>({...a,phase1DailyLossPct:a.phase1DailyLossPct??a.dailyLossPct??0,phase1MaxLossPct:a.phase1MaxLossPct??a.maxLossPct??0,phase2DailyLossPct:a.phase2DailyLossPct??a.dailyLossPct??0,phase2MaxLossPct:a.phase2MaxLossPct??a.maxLossPct??0})):[],trades:Array.isArray(obj.trades)?obj.trades:[],withdrawals:Array.isArray(obj.withdrawals)?obj.withdrawals:[],notes:Array.isArray(obj.notes)?obj.notes:[],goals:Array.isArray(obj.goals)?obj.goals:[]};
+  return {...d,...obj,profile:{...d.profile,...(obj.profile||{})},accounts:assignFundedAccountNumbers(Array.isArray(obj.accounts)?obj.accounts.map(a=>({...a,phase1DailyLossPct:a.phase1DailyLossPct??a.dailyLossPct??0,phase1MaxLossPct:a.phase1MaxLossPct??a.maxLossPct??0,phase2DailyLossPct:a.phase2DailyLossPct??a.dailyLossPct??0,phase2MaxLossPct:a.phase2MaxLossPct??a.maxLossPct??0})):[]),trades:Array.isArray(obj.trades)?obj.trades:[],withdrawals:Array.isArray(obj.withdrawals)?obj.withdrawals:[],notes:Array.isArray(obj.notes)?obj.notes:[],goals:Array.isArray(obj.goals)?obj.goals:[]};
 }
 const seed=(x)=>{let s=x;return ()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}};
 export function demoWorkspace(){
