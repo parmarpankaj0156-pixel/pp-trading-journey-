@@ -45,6 +45,37 @@ export function accountEquitySeries(workspace, account, range='30', asOf=dateOf(
  return {series:accountTrades.length?series:[],allTimeNet:netAll,periodNet,periodCount:inRange.length,count:accountTrades.length,range:r,accountId:account.id,from:periodStart||baseDate,to:asOf,peak:Math.max(0,...series.map(p=>p.value))};
 }
 
+/** Combined realized P&L curve for every account in one currency.
+ * Mixed currencies stay separate; USD, INR, EUR and GBP are never added together.
+ */
+export function portfolioEquitySeries(workspace,currency='USD',range='30',asOf=dateOf()){
+ const r=['7','14','30','all'].includes(String(range))?String(range):'30';
+ const accounts=(workspace?.accounts||[]).filter(a=>(a.currency||'USD')===currency);
+ const ids=new Set(accounts.map(a=>a.id));
+ const trades=(workspace?.trades||[]).filter(t=>ids.has(t.accountId)&&/^\d{4}-\d{2}-\d{2}$/.test(t.date||'')&&t.date<=asOf).sort((a,b)=>a.date.localeCompare(b.date));
+ const allTimeNet=sum(trades,tradeNet);
+ const days=r==='all'?null:Number(r);
+ const periodStart=days===null?null:iso(utc(asOf)-(days-1)*DAY);
+ const inRange=days===null?trades:trades.filter(t=>t.date>=periodStart);
+ const periodNet=sum(inRange,tradeNet);
+ const byDay=new Map(),tradesPerDay=new Map();
+ for(const t of inRange){byDay.set(t.date,(byDay.get(t.date)||0)+tradeNet(t));tradesPerDay.set(t.date,(tradesPerDay.get(t.date)||0)+1);}
+ let running=allTimeNet-periodNet,baseDate,dates=[];
+ if(days!==null){
+  baseDate=iso(utc(periodStart)-DAY);
+  dates=Array.from({length:days},(_,i)=>iso(utc(periodStart)+i*DAY));
+ }else{
+  const candidates=accounts.map(a=>a.createdAt).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d||''));
+  const firstTrade=trades[0]?.date;
+  const first=[...candidates,...(firstTrade?[firstTrade]:[])].sort()[0]||asOf;
+  baseDate=iso(utc(first)-DAY);
+  dates=[...new Set([...byDay.keys(),asOf])].filter(d=>d>baseDate).sort();
+ }
+ const series=[{date:baseDate,value:running,change:0,baseline:true}];
+ for(const date of dates){const change=byDay.get(date)||0;running+=change;series.push({date,value:running,change,tradeCount:tradesPerDay.get(date)||0});}
+ return {series:trades.length?series:[],allTimeNet,periodNet,periodCount:inRange.length,count:trades.length,range:r,currency,accountId:'__all__',from:periodStart||baseDate,to:asOf,peak:Math.max(0,...series.map(p=>p.value))};
+}
+
 function smoothLine(xs,ys){
  if(xs.length===1)return `M${xs[0].toFixed(2)} ${ys[0].toFixed(2)}`;
  const slopes=xs.slice(1).map((x,i)=>(ys[i+1]-ys[i])/Math.max(.001,x-xs[i]));
