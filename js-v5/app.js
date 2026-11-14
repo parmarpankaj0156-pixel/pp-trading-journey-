@@ -127,7 +127,8 @@ ROOT.addEventListener('change',async e=>{
  if(el.id==='top-account-select'||el.id==='chart-account-select'){selectAccount(el.value);return;}
  if(el.id==='trade-outcome'){ui.tradeOutcome=el.value;draw();return;}
  if(el.id==='trade-screenshot'){const f=el.files?.[0];if(f){if(!f.type.startsWith('image/')){toast('Only image files are accepted','error');return;}ui.uploadFile=f;const span=document.querySelector('.upload-zone span');if(span)span.textContent=`Selected: ${f.name}`;}return;}
- if(el.name==='kind'){const f=document.querySelector('.funded-fields');if(f)f.style.display=el.value==='funded'?'':'none';return;}
+ if(el.name==='kind'){const f=document.querySelector('.funded-fields');if(f)f.style.display=el.value==='funded'?'':'none';const preview=document.querySelector('.account-generated-preview');if(preview)preview.style.display=el.value==='funded'?'flex':'none';return;}
+ if(el.name==='plan'){const chip=document.querySelector('.account-generated-preview .account-stage-chip');if(chip)chip.textContent=el.value==='instant'?'Live':'Phase 1';return;}
  if(el.id==='import-json'){const f=el.files?.[0];if(!f)return;try{if(f.size>20*1024*1024)throw new Error('Backup too large.');const text=await f.text();const data=JSON.parse(text);const w=data.workspace||data;if(!Array.isArray(w.accounts)||!Array.isArray(w.trades))throw new Error('Not a valid PP Trading Journey backup.');if(!ask('Replace your current workspace with the backup? All existing data will be overwritten.'))return;ctx.w=normalizeWorkspace(w);ui.accountId=ctx.w.profile.defaultAccountId||ctx.w.accounts[0]?.id||'';persist();draw();toast('Workspace imported successfully');}catch(err){toast(err.message||'Import failed','error')}return;}
 });
 let checkUsernameTimer=null;
