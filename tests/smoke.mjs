@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
-import {demoWorkspace,freshWorkspace,accountStats,tradeStats,createSuccessorAccount,isLiveAccount} from '../js-v5/data.js';
+import {demoWorkspace,freshWorkspace,normalizeWorkspace,accountStats,tradeStats,createSuccessorAccount,isLiveAccount,nextFundedAccountNumber,accountDisplayName,accountDisplayLabel} from '../js-v5/data.js';
 import {pageView,shell,landing,authView,recoveryKeyView,renderModal,riskCalculation} from '../js-v5/views.js';
 import {periodRange,certificateData,certificateSVG,completedPeriodWithTrades} from '../js-v5/certificates.js';
 import {dateOf,uuid} from '../js-v5/utils.js';
 
 const w=demoWorkspace();
 assert.equal(w.accounts.length,4,'Sample accounts');
+assert.ok(w.accounts.filter(a=>a.kind==='funded').every(a=>a.accountNumber>0),'Demo funded accounts are numbered');
 assert.ok(w.trades.length>=70,'Sample trades');
 for(const a of w.accounts) assert.ok(accountStats(w,a).total>0,'Stats should load');
 const ui={route:'dashboard',accountId:w.accounts[0].id,calendarMonth:dateOf().slice(0,7),modal:null,tradeSearch:'',tradeOutcome:'all',dailyCertDate:dateOf(),dailyCertificateOpen:false,risk:{balance:10000,percent:1,entry:1.085,stop:1.081,take:1.093,multiplier:100000}};
@@ -26,6 +27,9 @@ const recover=authView({...c,ui:{...ui,authTab:'forgot'}});
 assert.ok(recover.includes('name="recoveryKey"')&&recover.includes('name="newPassword"'),'Recovery via secure key');
 assert.ok(recoveryKeyView({type:'signup',key:'PPJ-'+'A'.repeat(64)}).includes('shown <strong>only once'),'Recovery key one-time display');
 
+const newAccountModal=renderModal({...c,ui:{...ui,modal:{type:'account'}}});
+assert.ok(newAccountModal.includes('account-generated-preview')&&newAccountModal.includes('Account 3'),'Funded account form previews its generated number and phase');
+assert.ok(/name="name"[^>]*placeholder="Only for your reference"/.test(newAccountModal),'Funded internal label is optional');
 for(const modalType of ['trade','account','withdrawal','note','goal','trade-detail','account-detail','day-detail']){
  const html=renderModal({...c,ui:{...ui,modal:{type:modalType,id:modalType==='trade-detail'?w.trades[0].id:modalType==='account-detail'?w.accounts[0].id:'',date:dateOf()}}});
  assert.ok(html.includes('modal-dialog'),`${modalType} modal`);
@@ -48,11 +52,15 @@ f.accounts[0].stage='phase2';assert.equal(accountStats(f,f.accounts[0]).status,'
 f.trades.push(trade('phase2',-700));assert.equal(accountStats(f,f.accounts[0]).status,'breached');
 assert.equal(tradeStats(f.trades).count,2);
 const chain=freshWorkspace('Phase chain');
-const p1={id:'p1',name:'Funded 5K',kind:'funded',plan:'two-step',stage:'phase1',size:5000,currency:'USD',profitTargetPct:8,phase2TargetPct:5,phase1DailyLossPct:4,phase1MaxLossPct:8,phase2DailyLossPct:3,phase2MaxLossPct:6,cost:99};
+const p1={id:'p1',name:'Account 1',accountNumber:1,kind:'funded',plan:'two-step',stage:'phase1',size:5000,currency:'USD',profitTargetPct:8,phase2TargetPct:5,phase1DailyLossPct:4,phase1MaxLossPct:8,phase2DailyLossPct:3,phase2MaxLossPct:6,cost:99};
 chain.accounts.push(p1);chain.trades.push({id:'p1t',accountId:'p1',phase:'phase1',date:dateOf(),result:400,fees:0});
 assert.equal(accountStats(chain,p1).status,'passed');
 const p2=createSuccessorAccount(chain,p1);
 assert.ok(p2&&p2.stage==='phase2','Phase 1 creates Phase 2 automatically');
+assert.equal(p1.accountNumber,1,'First funded account is Account 1');
+assert.equal(p2.accountNumber,2,'Phase 2 receives the next account number');
+assert.equal(accountDisplayName(p1),'Account 1');
+assert.equal(accountDisplayLabel(p2),'Account 2 · Phase 2');
 assert.equal(p2.cost,0,'Purchase price is not duplicated');
 assert.equal(accountStats(chain,p2).target,250,'Phase 2 target uses the stored Phase 2 target');
 assert.equal(accountStats(chain,p2).dailyLossPct,3,'Phase 2 uses its own daily loss limit');
@@ -62,10 +70,17 @@ chain.trades.push({id:'p2t',accountId:p2.id,phase:'phase2',date:dateOf(),result:
 assert.equal(accountStats(chain,p2).status,'passed');
 const live=createSuccessorAccount(chain,p2);
 assert.ok(live&&live.stage==='funded','Phase 2 creates Live account automatically');
+assert.equal(live.accountNumber,3,'Live account is Account 3');
+assert.equal(accountDisplayLabel(live),'Account 3 · Live');
+assert.equal(nextFundedAccountNumber(chain),4,'Next replacement challenge continues numbering');
 assert.equal(accountStats(chain,live).target,0,'Live account has no profit target');
 assert.equal(accountStats(chain,live).dailyLossPct,3,'Live account keeps Phase 2 daily loss limit');
 assert.equal(accountStats(chain,live).maxLossPct,6,'Live account keeps Phase 2 max DD');
 assert.equal(isLiveAccount(p1),false);assert.equal(isLiveAccount(p2),false);assert.equal(isLiveAccount(live),true);
+const legacy=normalizeWorkspace({accounts:[{id:'old-p1',kind:'funded',stage:'phase1',plan:'two-step',createdAt:'2026-01-01'},{id:'old-p2',kind:'funded',stage:'phase2',plan:'two-step',parentAccountId:'old-p1',createdAt:'2026-01-02'},{id:'old-live',kind:'funded',stage:'funded',plan:'two-step',parentAccountId:'old-p2',createdAt:'2026-01-03'}]});
+assert.deepEqual(legacy.accounts.map(x=>x.accountNumber),[1,2,3],'Legacy phases receive sequential account numbers');
+const retry={accounts:[{id:'failed-1',kind:'funded',accountNumber:1},{id:'failed-2',kind:'funded',accountNumber:2}]};
+assert.equal(nextFundedAccountNumber(retry),3,'Replacement challenge after breach gets the next serial');
 for(const type of ['weekly','monthly','yearly']){
  const range=periodRange(type);const cert=certificateData(w,w.accounts[0],type,range.start,range.end);
  assert.ok(cert.name==='Alex Morgan');assert.ok(certificateSVG(cert).includes('CERTIFICATE OF PROGRESS'));
