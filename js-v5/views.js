@@ -1,7 +1,7 @@
 import {icon,logo} from './icons.js';
 import {esc,money,signed,shortMoney,pct,niceDate,today,formatNumber,sum,avg,clamp,dateOf} from './utils.js';
-import {SESSIONS,EMOTIONS,SETUPS,accountStats,tradeStats,accountLabel,stageLabel,CURRENCIES,isLiveAccount,accountDisplayName,accountDisplayStage,accountDisplayLabel,nextFundedAccountNumber} from './data.js';
-import {lineChart,equitySeries,accountEquitySeries,donut,bars,calendarGrid,sparkline} from './charts.js';
+import {SESSIONS,EMOTIONS,SETUPS,accountStats,tradeStats,portfolioSummary,accountLabel,stageLabel,CURRENCIES,isLiveAccount,accountDisplayName,accountDisplayStage,accountDisplayLabel,nextFundedAccountNumber} from './data.js';
+import {lineChart,equitySeries,accountEquitySeries,portfolioEquitySeries,donut,bars,calendarGrid,sparkline} from './charts.js';
 import {AUTH_ENABLED} from './config.js';
 import {periodRange,certificateData,certificateSVG,completedPeriodWithTrades,certificateRangeLabel} from './certificates.js';
 
@@ -100,10 +100,12 @@ function ruleProgress(c,a,s,compact=false){
 }
 function metricCard(c,{label,value,change='',ic='chart',tone='blue',foot='',spark=[]}){return `<div class="metric-card glass-surface"><div class="metric-top"><span>${label}</span><span class="metric-icon tone-${tone}">${icon(ic,19)}</span></div><div class="metric-value">${value}</div><div class="metric-bottom"><span class="${change.startsWith('-')?'down-pill':'up-pill'}">${change||'↗ Tracking'}</span><small>${foot}</small></div>${spark.length?sparkline(spark,tone==='green'?'#21a993':tone==='pink'?'#e0718c':'#7b81f0'):''}</div>`}
 const RANGE_OPTIONS=[['7','7D'],['14','14D'],['30','30D'],['all','All Time']];
-function equityControls(c,a){
+function equityControls(c,a,{allMode=false,currencies=[],currency='USD'}={}){
  const current=['7','14','30','all'].includes(c.ui.chartRange)?c.ui.chartRange:'30';
- const options=c.w.accounts.map(account=>`<option value="${esc(account.id)}" ${account.id===a.id?'selected':''}>${esc(accountDisplayLabel(account))}</option>`).join('');
- return `<div class="equity-chart-controls equity-chart-controls-v5"><label class="equity-account-switch-v5" title="Switch the trading account shown in this performance chart"><span class="equity-switch-icon-v5">${icon('accounts',17)}</span><span class="equity-switch-copy-v5"><small>TRADING ACCOUNT</small><span class="equity-select-wrap-v5"><select id="chart-account-select" aria-label="Select trading account for performance chart">${options}</select>${icon('chevronDown',14)}</span></span></label><div class="equity-range-group" role="group" aria-label="Equity chart date range">${RANGE_OPTIONS.map(([key,text])=>`<button type="button" class="equity-range-btn ${current===key?'is-selected':''}" data-action="chart-range" data-range="${key}" aria-pressed="${current===key?'true':'false'}">${text}</button>`).join('')}</div></div>`;
+ const selected=allMode?'__all__':a.id;
+ const options=[`<option value="__all__" ${allMode?'selected':''}>Overall · All accounts</option>`,...c.w.accounts.map(account=>`<option value="${esc(account.id)}" ${account.id===selected?'selected':''}>${esc(accountDisplayLabel(account))}</option>`)].join('');
+ const currencyControl=allMode?`<label class="equity-currency-switch-v5"><small>CURRENCY</small><span class="equity-select-wrap-v5"><select id="portfolio-currency-select" aria-label="Currency for overall account performance">${currencies.map(x=>`<option value="${esc(x.currency)}" ${x.currency===currency?'selected':''}>${esc(x.currency)}</option>`).join('')}</select>${icon('chevronDown',14)}</span></label>`:'';
+ return `<div class="equity-chart-controls equity-chart-controls-v5"><label class="equity-account-switch-v5" title="Choose one account or view all accounts together"><span class="equity-switch-icon-v5">${icon('accounts',17)}</span><span class="equity-switch-copy-v5"><small>CHART VIEW</small><span class="equity-select-wrap-v5"><select id="chart-account-select" aria-label="Select account or overall performance">${options}</select>${icon('chevronDown',14)}</span></span></label>${currencyControl}<div class="equity-range-group" role="group" aria-label="Equity chart date range">${RANGE_OPTIONS.map(([key,text])=>`<button type="button" class="equity-range-btn ${current===key?'is-selected':''}" data-action="chart-range" data-range="${key}" aria-pressed="${current===key?'true':'false'}">${text}</button>`).join('')}</div></div>`;
 }
 function equityOverview(c,a,data,{detail=false}={}){
  const label=data.range==='all'?'All-time change':`Last ${data.range} days`;
@@ -117,12 +119,28 @@ function equityPeriodInsights(c,a,data){
  const value=(p)=>p&&p.change!==0?`<strong class="${statClass(p.change)}">${signfmt(c,p.change,a.currency)}</strong>`:'<strong class="muted">—</strong>';
  return `<div class="equity-insights-v5" aria-label="Selected period performance summary"><div class="equity-insight-v5"><span class="insight-glyph-v5 good">${icon('arrowUpRight',16)}</span><span><small>Best day</small>${best?.change>0?value(best):'<strong class="muted">No green day</strong>'}</span></div><div class="equity-insight-v5"><span class="insight-glyph-v5 bad">${icon('arrowDownRight',16)}</span><span><small>Toughest day</small>${worst?.change<0?value(worst):'<strong class="muted">No red day</strong>'}</span></div><div class="equity-insight-v5"><span class="insight-glyph-v5 neutral">${icon('calendar',16)}</span><span><small>Active days</small><strong>${active.length} <em>${data.range==='all'?'all time':`last ${data.range}D`}</em></strong></span></div></div>`;
 }
+function portfolioOverview(c,summary){
+ const moneyGroups=key=>summary.currencies.map(g=>`<strong class="${statClass(g[key])}">${money(g[key],g.currency,2)} <small>${esc(g.currency)}</small></strong>`).join('')||'<strong class="muted">—</strong>';
+ const rows=summary.accounts.map(({account,net,tradeCount})=>{
+  const s=accountStats(c.w,account);
+  return `<div class="portfolio-account-row"><span><strong>${esc(accountDisplayLabel(account))}</strong><small>${esc(accountDisplayStage(account))} · ${tradeCount} trade${tradeCount===1?'':'s'}</small></span><strong class="${statClass(net)}">${signfmt(c,net,account.currency||'USD')}</strong><span class="portfolio-status">${status(s.status)}</span></div>`;
+ }).join('');
+ return `<section class="glass-surface panel portfolio-overview-v5"><div class="panel-top"><div><span class="overline">ALL ACCOUNTS</span><h3>Investment &amp; overall performance</h3><p>Phase 1 → Phase 2 → Live is counted as one purchase.</p></div></div><div class="portfolio-metrics-v5"><div><small>Accounts purchased</small><strong>${summary.purchaseCount}</strong></div><div><small>Total invested</small><div class="portfolio-currency-values-v5">${moneyGroups('invested')}</div></div><div><small>Overall profit / loss</small><div class="portfolio-currency-values-v5">${moneyGroups('net')}</div></div></div><div class="portfolio-account-head-v5"><strong>Account-wise profit / loss</strong><span>All phases and live accounts</span></div><div class="portfolio-account-list-v5">${rows||'<p class="muted">Add an account to start tracking your investment and P&amp;L.</p>'}</div></section>`;
+}
 function accountsNudge(){return empty('Your trading journey starts here','Create your first trading account to unlock your dashboard, charts, and insights.','accounts','Create account','add-account')}
 export function dashboard(c){
  const {w}=c,a=w.accounts.find(x=>x.id===c.ui.accountId)||w.accounts[0];
  if(!a)return accountsNudge();
- const stats=accountStats(w,a),all=stats.all,st=tradeStats(all),currency=a.currency;
- const chartData=accountEquitySeries(w,a,c.ui.chartRange||'30'),chart=chartData.series,last7=all.filter(t=>t.date>=dateOf(-6));
+ const portfolio=portfolioSummary(w),allMode=c.ui.chartAccountMode==='all';
+ const stats=accountStats(w,a);
+ const availableCurrencies=portfolio.currencies.length?portfolio.currencies:[{currency:a.currency||'USD',net:0,invested:0,purchases:0,tradeCount:0,accountCount:0}];
+ const preferred=availableCurrencies.some(x=>x.currency===c.ui.portfolioCurrency)?c.ui.portfolioCurrency:(availableCurrencies.find(x=>x.currency==='USD')?.currency||availableCurrencies[0].currency);
+ const currency=allMode?preferred:(a.currency||'USD');
+ const accountIds=new Set(allMode?w.accounts.filter(x=>(x.currency||'USD')===currency).map(x=>x.id):[a.id]);
+ const all=allMode?w.trades.filter(t=>accountIds.has(t.accountId)):stats.all;
+ const st=tradeStats(all);
+ const chartData=allMode?portfolioEquitySeries(w,currency,c.ui.chartRange||'30'):accountEquitySeries(w,a,c.ui.chartRange||'30');
+ const chart=chartData.series,last7=all.filter(t=>t.date>=dateOf(-6));
  const weekly=sum(last7,t=>t.result-(t.fees||0));
  const first=esc((w.profile.name||'Trader').split(' ')[0]);
  const pulse=stats.status==='passed'?'Target reached. On to the next chapter.':stats.status==='breached'?'Review the process. Build the comeback.':st.count===0?'Your first trade starts the story.':weekly>0?'Good momentum. Keep following your plan.':weekly<0?'Keep the discipline. Learn from the dip.':'Trade your plan. Track your progress.';
@@ -136,8 +154,9 @@ export function dashboard(c){
  ${metricCard(c,{label:'Win rate',value:pct(st.winRate),change:`${st.wins} wins`,ic:'target',tone:'blue',foot:`${st.losses} losses`,spark:[30,35,45,44,58,55,st.winRate]})}
  ${metricCard(c,{label:'This week',value:signfmt(c,weekly,currency),change:weekly>=0?'Green week':'Red week',ic:'calendar',tone:weekly>=0?'green':'pink',foot:`${last7.length} trades`,spark:[0,2,-1,3,-2,4,weekly]})}
  </section>
- <section class="dashboard-grid dashboard-grid-v2"><div class="glass-surface panel dashboard-chart dashboard-chart-v4"><div class="panel-top"><div><span class="overline">YOUR EQUITY JOURNEY</span><h3>Performance</h3><div class="chart-account-identity"><strong>${esc(accountDisplayName(a))}</strong><span class="account-stage-chip">${esc(accountDisplayStage(a))}</span></div></div></div>${equityControls(c,a)}${equityOverview(c,a,chartData)}${lineChart(chart,{id:'dash-v5',currency,mask:w.profile.hideBalances,accountNet:chartData.allTimeNet})}${equityPeriodInsights(c,a,chartData)}</div>
+ <section class="dashboard-grid dashboard-grid-v2"><div class="glass-surface panel dashboard-chart dashboard-chart-v4"><div class="panel-top"><div><span class="overline">YOUR EQUITY JOURNEY</span><h3>Performance</h3><div class="chart-account-identity"><strong>${allMode?'All accounts · Overall':esc(accountDisplayName(a))}</strong><span class="account-stage-chip">${allMode?'Portfolio view':esc(accountDisplayStage(a))}</span></div></div></div>${equityControls(c,a,{allMode,currencies:availableCurrencies,currency})}${equityOverview(c,allMode?{currency}:a,chartData)}${lineChart(chart,{id:'dash-v5',currency,mask:w.profile.hideBalances,accountNet:chartData.allTimeNet})}${equityPeriodInsights(c,a,chartData)}</div>
  <div class="glass-surface panel challenge-panel"><div class="panel-top"><div><span class="overline">ACTIVE ACCOUNT</span><h3>${esc(accountDisplayName(a))}</h3><span class="account-stage-chip">${esc(accountDisplayStage(a))}</span></div><span class="account-kind-icon">${icon('accounts',20)}</span></div><div class="account-amount"><small>${stageLabel(a)}</small><strong class="${statClass(stats.stageNet)}">${signfmt(c,stats.stageNet,currency)}</strong></div>${ruleProgress(c,a,stats,true)}<div class="account-phase-line">${status(stats.status)}<button class="text-link" data-action="navigate" data-route="accounts">Details ${icon('arrowRight',15)}</button></div></div></section>
+ ${portfolioOverview(c,portfolio)}
  <section class="dashboard-grid secondary-grid"><div class="glass-surface panel"><div class="panel-top"><div><h3>Trading calendar</h3></div><button class="text-link" data-action="navigate" data-route="calendar">View calendar ${icon('arrowRight',15)}</button></div>${calendarGrid(all,currentMonth,{mini:true,hideValues:w.profile.hideBalances})}</div><div class="glass-surface panel recent-panel"><div class="panel-top"><div><h3>Recent trades</h3></div><button class="text-link" data-action="navigate" data-route="trades">View all ${icon('arrowRight',15)}</button></div>${all.length?`<div class="recent-list">${[...all].sort((x,y)=>y.date.localeCompare(x.date)).slice(0,4).map(t=>`<button class="recent-trade" data-action="trade-detail" data-id="${esc(t.id)}"><span class="symbol-icon">${esc((t.symbol||'TR').slice(0,2))}</span><span><strong>${esc(t.symbol||'Trade')}</strong><small>${niceDate(t.date,{month:'short',day:'numeric'})} · ${esc(t.entryType||t.setup||'Planned')}</small></span><span class="trade-result ${statClass(t.result-(t.fees||0))}">${signfmt(c,t.result-(t.fees||0),currency)}</span>${icon('chevronRight',16)}</button>`).join('')}</div>`:empty('Your journey starts here','Add your first trade.')}<button class="add-trade-link" data-action="add-trade">${icon('plus',16)} Add trade</button></div></section>
  </div>`;
 }
