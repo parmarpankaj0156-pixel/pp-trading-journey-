@@ -69,3 +69,13 @@ html[data-theme="dark"] .app-content .panel.glass-surface:hover,html[data-theme=
 @media(max-width:760px){.equity-chart-controls-v5{gap:11px}.equity-account-switch-v5{width:100%}.equity-range-group{align-self:stretch}.equity-insights-v5{gap:6px}.equity-insight-v5{gap:6px;padding:9px 6px}.insight-glyph-v5{width:26px;height:26px}.equity-insight-v5 strong{font-size:10px}.focus-strip{padding:20px!important}}
 @media(max-width:390px){.equity-insight-v5{flex-direction:column;align-items:flex-start;padding:9px}.equity-insight-v5>span:last-child{max-width:100%}.equity-insight-v5 strong{font-size:10px}.equity-insight-v5 strong em{display:none}.equity-range-btn{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.app-content .glass-surface,.equity-account-switch-v5,.equity-range-btn{transition:none!important}.chart-monoline-v4,.chart-live-dot-v4,.peak-marker-v4{animation:none!important;stroke-dashoffset:0!important}}
+
+
+/* Optional trade time control */
+.trade-time-details{border:1px solid #d7e1f1;border-radius:17px;background:linear-gradient(140deg,#f7faff,#f3f6ff);overflow:hidden}
+.trade-time-details summary{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;padding:13px 16px;color:#334866;font-size:13px;font-weight:800;list-style:none}
+.trade-time-details summary::-webkit-details-marker{display:none}
+.trade-time-details summary>span{display:inline-flex;gap:9px;align-items:center}
+.trade-time-details summary small{margin-left:auto;color:#687e9c;font-size:11px}
+.trade-time-details[open] summary{border-bottom:1px solid #dce5f2;background:#f0f5ff}
+.trade-time-details[open] summary>svg:last-child{transform:rotate(180deg)}
