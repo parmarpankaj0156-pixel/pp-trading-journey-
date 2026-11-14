@@ -8,14 +8,14 @@ import {certificateData,downloadCertificatePNG} from './certificates.js';
 const ROOT=document.getElementById('app');
 const DEMO_KEY='pptj_demo_v1',MODE_KEY='pptj_view_mode_v1',THEME_KEY='pptj_theme_v3',CHART_RANGE_KEY='pptj_chart_range_v4';
 const validPages=new Set(['dashboard','trades','calendar','accounts','analytics','performance','certificates','notes','goals','withdrawals','risk','settings']);
-const ui={route:'dashboard',chartRange:['7','14','30','all'].includes(localStorage.getItem(CHART_RANGE_KEY))?localStorage.getItem(CHART_RANGE_KEY):'30',authTab:'login',recoveryKey:null,accountId:'',calendarMonth:today().slice(0,7),tradeSearch:'',tradeOutcome:'all',mobileMenu:false,modal:null,uploadFile:null,dailyCertDate:today(),dailyCertificateOpen:false,risk:safeJsonParse(localStorage.getItem('pptj_risk_v1'),{balance:10000,percent:1,entry:1.0850,stop:1.0810,take:1.0930,multiplier:100000})};
+const ui={route:'dashboard',chartRange:['7','14','30','all'].includes(localStorage.getItem(CHART_RANGE_KEY))?localStorage.getItem(CHART_RANGE_KEY):'30',chartAccountMode:'account',portfolioCurrency:'',authTab:'login',recoveryKey:null,accountId:'',calendarMonth:today().slice(0,7),tradeSearch:'',tradeOutcome:'all',mobileMenu:false,modal:null,uploadFile:null,dailyCertDate:today(),dailyCertificateOpen:false,risk:safeJsonParse(localStorage.getItem('pptj_risk_v1'),{balance:10000,percent:1,entry:1.0850,stop:1.0810,take:1.0930,multiplier:100000})};
 const ctx={mode:null,user:null,w:null,ui,demo:demoWorkspace()};
 const routeHash=()=>decodeURIComponent(location.hash.slice(1).split('?')[0]);
 let saveTimer=null, saveActive=false, saveAgain=false;
 
 function applyTheme(theme){const t=theme==='dark'?'dark':'light';document.documentElement.dataset.theme=t;localStorage.setItem(THEME_KEY,t);document.querySelector('meta[name="theme-color"]')?.setAttribute('content',t==='dark'?'#0b1120':'#f7f9fd');}
 function ensureSelected(){const a=ctx.w?.accounts.find(x=>x.id===ui.accountId);if(!a)ui.accountId=ctx.w?.accounts.find(x=>x.id===ctx.w.profile.defaultAccountId)?.id||ctx.w?.accounts[0]?.id||'';}
-function selectAccount(id){if(!ctx.w?.accounts.some(a=>a.id===id))return;ui.accountId=id;if(ctx.w.profile.defaultAccountId!==id){ctx.w.profile.defaultAccountId=id;persist();}draw();}
+function selectAccount(id){if(!ctx.w?.accounts.some(a=>a.id===id))return;ui.chartAccountMode='account';ui.accountId=id;if(ctx.w.profile.defaultAccountId!==id){ctx.w.profile.defaultAccountId=id;persist();}draw();}
 function draw(){if(ui.recoveryKey){ROOT.innerHTML=recoveryKeyView(ui.recoveryKey);return;}if(ctx.mode){ensureSelected();const page=validPages.has(ui.route)?ui.route:'dashboard';ui.route=page;ROOT.innerHTML=shell(ctx,pageView(ctx));loadPrivateScreenshots();return;}
  ROOT.innerHTML=(routeHash()==='login'||routeHash()==='signup'||routeHash()==='forgot')?authView(ctx):landing(ctx);
 }
@@ -124,7 +124,13 @@ ROOT.addEventListener('pointerout',e=>{const chart=e.target.closest?.('.interact
 ROOT.addEventListener('keydown',e=>{if(e.key==='Escape'&&ui.modal)closeModal();if(e.key==='Enter'&&e.target.matches('tr[data-action="trade-detail"]')){e.preventDefault();void action('trade-detail',e.target)}});
 ROOT.addEventListener('change',async e=>{
  const el=e.target;
- if(el.id==='top-account-select'||el.id==='chart-account-select'){selectAccount(el.value);return;}
+ if(el.id==='top-account-select'){selectAccount(el.value);return;}
+ if(el.id==='chart-account-select'){
+  if(el.value==='__all__'){ui.chartAccountMode='all';draw();}
+  else{selectAccount(el.value);}
+  return;
+ }
+ if(el.id==='portfolio-currency-select'){ui.portfolioCurrency=el.value;draw();return;}
  if(el.id==='trade-outcome'){ui.tradeOutcome=el.value;draw();return;}
  if(el.id==='trade-screenshot'){const f=el.files?.[0];if(f){if(!f.type.startsWith('image/')){toast('Only image files are accepted','error');return;}ui.uploadFile=f;const span=document.querySelector('.upload-zone span');if(span)span.textContent=`Selected: ${f.name}`;}return;}
  if(el.name==='kind'){const f=document.querySelector('.funded-fields');if(f)f.style.display=el.value==='funded'?'':'none';const preview=document.querySelector('.account-generated-preview');if(preview)preview.style.display=el.value==='funded'?'flex':'none';return;}
