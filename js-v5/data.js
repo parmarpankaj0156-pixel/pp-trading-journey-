@@ -53,7 +53,7 @@ export function demoWorkspace(){
   w.withdrawals=[{id:'w1',accountId:'a1',amount:1450,date:dateOf(-16),status:'Paid',note:'First payout'},{id:'w2',accountId:'a1',amount:920,date:dateOf(-5),status:'Pending',note:'Monthly withdrawal'}];
   w.notes=[{id:'n1',date:dateOf(-2),mood:'Focused',title:'A better session starts with patience',body:'Skipped two low-quality setups today. I only acted when my checklist was complete. Patience is part of my edge.'},{id:'n2',date:dateOf(-7),mood:'Reflective',title:'Weekly review',body:'I trade best after a clear morning routine. Need to avoid revenge trades after the first loss.'}];
   w.goals=[{id:'g1',title:'Follow my trade plan',target:20,progress:13,unit:'trades'},{id:'g2',title:'Complete weekly reviews',target:8,progress:5,unit:'reviews'},{id:'g3',title:'Maintain risk discipline',target:30,progress:22,unit:'sessions'}];
-  w.profile.defaultAccountId='a1';return w;
+  w.profile.defaultAccountId='a1';w.accounts=assignFundedAccountNumbers(w.accounts);return w;
 }
 export function accountTrades(w,accountId,phase=null){return w.trades.filter(t=>t.accountId===accountId&&(!phase||t.phase===phase));}
 export function accountStats(w,a){
@@ -99,4 +99,5 @@ export function tradeStats(trades){const sorted=[...trades].sort((a,b)=>a.date.l
 export const accountLabel=(a)=>a?.kind==='funded'?'Funded account':a?.kind==='indian'?'Indian market':'Real forex';
 export const stageLabel=(a)=>!a?'—':a.kind!=='funded'?'Live account':({phase1:'Phase 1',phase2:'Phase 2',funded:'Live account'})[a.stage]||'Phase 1';
 export const accountDisplayName=(a)=>a?.kind==='funded'?`Account ${Number(a.accountNumber)||'—'}`:(a?.name||'Account');
-export const accountDisplayLabel=(a)=>a?.kind==='funded'?`${accountDisplayName(a)} · ${stageLabel(a)}`:(a?.name||'Account');
+export const accountDisplayStage=(a)=>a?.kind==='funded'&&a.stage==='funded'?'Live':stageLabel(a);
+export const accountDisplayLabel=(a)=>a?.kind==='funded'?`${accountDisplayName(a)} · ${accountDisplayStage(a)}`:(a?.name||'Account');
