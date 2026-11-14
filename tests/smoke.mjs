@@ -27,6 +27,9 @@ const recover=authView({...c,ui:{...ui,authTab:'forgot'}});
 assert.ok(recover.includes('name="recoveryKey"')&&recover.includes('name="newPassword"'),'Recovery via secure key');
 assert.ok(recoveryKeyView({type:'signup',key:'PPJ-'+'A'.repeat(64)}).includes('shown <strong>only once'),'Recovery key one-time display');
 
+const newAccountModal=renderModal({...c,ui:{...ui,modal:{type:'account'}}});
+assert.ok(newAccountModal.includes('account-generated-preview')&&newAccountModal.includes('Account 3'),'Funded account form previews its generated number and phase');
+assert.ok(/name="name"[^>]*placeholder="Only for your reference"/.test(newAccountModal),'Funded internal label is optional');
 for(const modalType of ['trade','account','withdrawal','note','goal','trade-detail','account-detail','day-detail']){
  const html=renderModal({...c,ui:{...ui,modal:{type:modalType,id:modalType==='trade-detail'?w.trades[0].id:modalType==='account-detail'?w.accounts[0].id:'',date:dateOf()}}});
  assert.ok(html.includes('modal-dialog'),`${modalType} modal`);
@@ -68,7 +71,7 @@ assert.equal(accountStats(chain,p2).status,'passed');
 const live=createSuccessorAccount(chain,p2);
 assert.ok(live&&live.stage==='funded','Phase 2 creates Live account automatically');
 assert.equal(live.accountNumber,3,'Live account is Account 3');
-assert.equal(accountDisplayLabel(live),'Account 3 · Live account');
+assert.equal(accountDisplayLabel(live),'Account 3 · Live');
 assert.equal(nextFundedAccountNumber(chain),4,'Next replacement challenge continues numbering');
 assert.equal(accountStats(chain,live).target,0,'Live account has no profit target');
 assert.equal(accountStats(chain,live).dailyLossPct,3,'Live account keeps Phase 2 daily loss limit');
