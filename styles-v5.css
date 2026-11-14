@@ -71,6 +71,33 @@ html[data-theme="dark"] .app-content .panel.glass-surface:hover,html[data-theme=
 @media(prefers-reduced-motion:reduce){.app-content .glass-surface,.equity-account-switch-v5,.equity-range-btn{transition:none!important}.chart-monoline-v4,.chart-live-dot-v4,.peak-marker-v4{animation:none!important;stroke-dashoffset:0!important}}
 
 
+/* All-account investment and realized P&L summary */
+.equity-currency-switch-v5{display:flex;align-items:center;gap:9px;padding:8px 12px;border:1px solid rgba(164,187,228,.42);border-radius:15px;background:rgba(239,245,255,.74)}
+.equity-currency-switch-v5>small{font-size:9px;letter-spacing:.1em;font-weight:850;color:#72809c}
+.equity-currency-switch-v5 .equity-select-wrap-v5{min-width:68px}
+.portfolio-overview-v5{margin:18px 0 22px;padding:23px 25px}
+.portfolio-overview-v5 .panel-top p{margin:6px 0 0;color:var(--muted,#7c8aa5);font-size:12px}
+.portfolio-metrics-v5{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0 22px}
+.portfolio-metrics-v5>div{min-width:0;padding:15px 16px;border:1px solid rgba(174,192,225,.34);border-radius:16px;background:rgba(239,245,255,.48)}
+.portfolio-metrics-v5>div>small{display:block;margin-bottom:8px;color:#74819a;font-size:11px;font-weight:750}
+.portfolio-metrics-v5>div>strong{font:800 23px/1.25 Manrope,'DM Sans',sans-serif;color:var(--text,#263650)}
+.portfolio-currency-values-v5{display:flex;flex-wrap:wrap;gap:7px 13px;align-items:baseline}
+.portfolio-currency-values-v5>strong{font:800 16px/1.35 Manrope,'DM Sans',sans-serif;white-space:nowrap}
+.portfolio-currency-values-v5>strong small{font:750 9px/1 'DM Sans',sans-serif;color:#8290a8;letter-spacing:.06em}
+.portfolio-account-head-v5{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 9px}
+.portfolio-account-head-v5>strong{font-size:13px;font-weight:850;color:var(--text,#273650)}
+.portfolio-account-head-v5>span{font-size:10px;color:var(--muted,#8290a8)}
+.portfolio-account-list-v5{display:grid;gap:7px}
+.portfolio-account-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:13px;padding:11px 13px;border-radius:13px;background:rgba(239,245,255,.43);border:1px solid rgba(174,192,225,.26)}
+.portfolio-account-row>span:first-child{display:flex;flex-direction:column;gap:4px;min-width:0}
+.portfolio-account-row>span:first-child strong{font-size:12px;font-weight:800;color:var(--text,#2a3954)}
+.portfolio-account-row>span:first-child small{font-size:10px;color:var(--muted,#8290a8)}
+.portfolio-account-row>strong{font:800 13px Manrope,'DM Sans',sans-serif;white-space:nowrap}
+.portfolio-status{white-space:nowrap}
+html[data-theme="dark"] .equity-currency-switch-v5,html[data-theme="dark"] .portfolio-metrics-v5>div,html[data-theme="dark"] .portfolio-account-row{background:rgba(31,51,81,.78);border-color:rgba(103,133,184,.25)}
+html[data-theme="dark"] .equity-currency-switch-v5>small,html[data-theme="dark"] .portfolio-metrics-v5>div>small,html[data-theme="dark"] .portfolio-currency-values-v5>strong small,html[data-theme="dark"] .portfolio-account-head-v5>span{color:#a9bad7}
+html[data-theme="dark"] .portfolio-metrics-v5>div>strong,html[data-theme="dark"] .portfolio-account-row>span:first-child strong,html[data-theme="dark"] .portfolio-account-head-v5>strong{color:#edf3ff}
+@media(max-width:760px){.portfolio-overview-v5{padding:18px 15px}.portfolio-metrics-v5{grid-template-columns:1fr;gap:8px}.portfolio-metrics-v5>div{padding:12px 13px}.portfolio-account-row{grid-template-columns:minmax(0,1fr) auto;gap:8px}.portfolio-status{grid-column:1/-1}.portfolio-currency-values-v5>strong{font-size:14px}}
 /* Optional trade time control */
 .trade-time-details{border:1px solid #d7e1f1;border-radius:17px;background:linear-gradient(140deg,#f7faff,#f3f6ff);overflow:hidden}
 .trade-time-details summary{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;padding:13px 16px;color:#334866;font-size:13px;font-weight:800;list-style:none}
