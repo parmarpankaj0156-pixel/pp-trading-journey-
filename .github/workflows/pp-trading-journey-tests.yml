@@ -3,6 +3,7 @@ name: PP Trading Journey tests
 on:
   push:
     branches:
+      - main
       - feature/automatic-funded-phases
   pull_request:
     branches:
