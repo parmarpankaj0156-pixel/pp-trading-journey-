@@ -8,10 +8,25 @@ export const CURRENCIES=['USD','INR','EUR','GBP'];
 export function freshWorkspace(name='Trader'){
   return { version:1,profile:{name,hideBalances:false,compact:false,theme:'light',defaultAccountId:'',onboardingDismissed:false},accounts:[],trades:[],withdrawals:[],notes:[],goals:[] };
 }
+function assignFundedAccountNumbers(accounts){
+ const result=accounts.map(a=>({...a}));
+ const funded=result.filter(a=>a.kind==='funded');
+ const ids=new Set(funded.map(a=>a.id));
+ let next=Math.max(0,...funded.map(a=>Number(a.accountNumber)||0))+1;
+ const children=new Map();
+ for(const a of funded){if(a.parentAccountId){const list=children.get(a.parentAccountId)||[];list.push(a);children.set(a.parentAccountId,list)}}
+ const rank=(a)=>String(a.createdAt||'');
+ const visit=a=>{if(a.__numbered)return;a.__numbered=true;if(!(Number(a.accountNumber)>0))a.accountNumber=next++;(children.get(a.id)||[]).sort((x,y)=>rank(x).localeCompare(rank(y))).forEach(visit)};
+ funded.filter(a=>!ids.has(a.parentAccountId)).sort((a,b)=>rank(a).localeCompare(rank(b))).forEach(visit);
+ funded.forEach(visit);
+ result.forEach(a=>delete a.__numbered);
+ return result;
+}
+export function nextFundedAccountNumber(workspace){return Math.max(0,...(workspace?.accounts||[]).filter(a=>a.kind==='funded').map(a=>Number(a.accountNumber)||0))+1;}
 export function normalizeWorkspace(obj) {
   const d=freshWorkspace();
   if(!obj || typeof obj!=='object') return d;
-  return {...d,...obj,profile:{...d.profile,...(obj.profile||{})},accounts:Array.isArray(obj.accounts)?obj.accounts.map(a=>({...a,phase1DailyLossPct:a.phase1DailyLossPct??a.dailyLossPct??0,phase1MaxLossPct:a.phase1MaxLossPct??a.maxLossPct??0,phase2DailyLossPct:a.phase2DailyLossPct??a.dailyLossPct??0,phase2MaxLossPct:a.phase2MaxLossPct??a.maxLossPct??0})):[],trades:Array.isArray(obj.trades)?obj.trades:[],withdrawals:Array.isArray(obj.withdrawals)?obj.withdrawals:[],notes:Array.isArray(obj.notes)?obj.notes:[],goals:Array.isArray(obj.goals)?obj.goals:[]};
+  return {...d,...obj,profile:{...d.profile,...(obj.profile||{})},accounts:assignFundedAccountNumbers(Array.isArray(obj.accounts)?obj.accounts.map(a=>({...a,phase1DailyLossPct:a.phase1DailyLossPct??a.dailyLossPct??0,phase1MaxLossPct:a.phase1MaxLossPct??a.maxLossPct??0,phase2DailyLossPct:a.phase2DailyLossPct??a.dailyLossPct??0,phase2MaxLossPct:a.phase2MaxLossPct??a.maxLossPct??0})):[],trades:Array.isArray(obj.trades)?obj.trades:[],withdrawals:Array.isArray(obj.withdrawals)?obj.withdrawals:[],notes:Array.isArray(obj.notes)?obj.notes:[],goals:Array.isArray(obj.goals)?obj.goals:[]};
 }
 const seed=(x)=>{let s=x;return ()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}};
 export function demoWorkspace(){
@@ -73,7 +88,7 @@ export function createSuccessorAccount(workspace,account){
   if(account.stage==='phase1'&&account.plan==='two-step')stage='phase2';
   else if(account.stage==='phase1'||account.stage==='phase2')stage='funded';
   if(!stage)return null;
-  const next={...account,id:uuid(),stage,parentAccountId:account.id,challengeRootId:account.challengeRootId||account.id,createdAt:today(),cost:0};
+  const next={...account,id:uuid(),accountNumber:nextFundedAccountNumber(workspace),stage,parentAccountId:account.id,challengeRootId:account.challengeRootId||account.id,createdAt:today(),cost:0};
   workspace.accounts.push(next);
   workspace.profile.defaultAccountId=next.id;
   return next;
@@ -83,3 +98,5 @@ export const isLiveAccount=(account)=>!!account&&(account.kind!=='funded'||accou
 export function tradeStats(trades){const sorted=[...trades].sort((a,b)=>a.date.localeCompare(b.date));const net=sum(sorted,t=>t.result-(t.fees||0));const wins=sorted.filter(t=>t.result>0);const losses=sorted.filter(t=>t.result<0);return {net,count:trades.length,wins:wins.length,losses:losses.length,winRate:trades.length?wins.length/trades.length*100:0,average:trades.length?net/trades.length:0,avgWinner:wins.length?sum(wins,t=>t.result)/wins.length:0,avgLoser:losses.length?sum(losses,t=>t.result)/losses.length:0,profitFactor:losses.length?sum(wins,t=>t.result)/Math.abs(sum(losses,t=>t.result)):0,best:sorted.length?Math.max(...sorted.map(t=>t.result)):0,worst:sorted.length?Math.min(...sorted.map(t=>t.result)):0};}
 export const accountLabel=(a)=>a?.kind==='funded'?'Funded account':a?.kind==='indian'?'Indian market':'Real forex';
 export const stageLabel=(a)=>!a?'—':a.kind!=='funded'?'Live account':({phase1:'Phase 1',phase2:'Phase 2',funded:'Live account'})[a.stage]||'Phase 1';
+export const accountDisplayName=(a)=>a?.kind==='funded'?`Account ${Number(a.accountNumber)||'—'}`:(a?.name||'Account');
+export const accountDisplayLabel=(a)=>a?.kind==='funded'?`${accountDisplayName(a)} · ${stageLabel(a)}`:(a?.name||'Account');
