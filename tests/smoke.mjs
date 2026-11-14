@@ -6,6 +6,7 @@ import {dateOf,uuid} from '../js-v5/utils.js';
 
 const w=demoWorkspace();
 assert.equal(w.accounts.length,4,'Sample accounts');
+assert.ok(w.accounts.filter(a=>a.kind==='funded').every(a=>a.accountNumber>0),'Demo funded accounts are numbered');
 assert.ok(w.trades.length>=70,'Sample trades');
 for(const a of w.accounts) assert.ok(accountStats(w,a).total>0,'Stats should load');
 const ui={route:'dashboard',accountId:w.accounts[0].id,calendarMonth:dateOf().slice(0,7),modal:null,tradeSearch:'',tradeOutcome:'all',dailyCertDate:dateOf(),dailyCertificateOpen:false,risk:{balance:10000,percent:1,entry:1.085,stop:1.081,take:1.093,multiplier:100000}};
