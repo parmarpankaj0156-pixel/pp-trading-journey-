@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {demoWorkspace,freshWorkspace,accountStats,tradeStats} from '../js-v5/data.js';
+import {demoWorkspace,freshWorkspace,accountStats,tradeStats,createSuccessorAccount,isLiveAccount} from '../js-v5/data.js';
 import {pageView,shell,landing,authView,recoveryKeyView,renderModal,riskCalculation} from '../js-v5/views.js';
 import {periodRange,certificateData,certificateSVG,completedPeriodWithTrades} from '../js-v5/certificates.js';
 import {dateOf,uuid} from '../js-v5/utils.js';
@@ -32,7 +32,8 @@ for(const modalType of ['trade','account','withdrawal','note','goal','trade-deta
  if(modalType==='trade'){
   assert.ok(html.includes('trade-outcome-choice'),'Trade profit/loss selection');
   assert.ok(html.includes('more-trade-details'),'Advanced fields collapsible');
-  assert.ok(html.includes('name="time"'),'Trade time');
+  assert.ok(html.includes('name="time"'),'Optional trade time field');
+  assert.ok(html.includes('Add time')&&!/name="time"[^>]*required/.test(html),'Trade time is optional and collapsed behind Add time');
   assert.ok(html.includes('name="entryType"'),'Entry type');
   assert.ok(html.includes('trade-direction-choice')&&html.includes('BUY')&&html.includes('SELL'),'Buy/sell in basic form');
   assert.ok(html.indexOf('trade-direction-choice')<html.indexOf('more-trade-details'),'Buy/sell must be visible');
@@ -46,6 +47,25 @@ f.trades.push(trade('phase1',650));assert.equal(accountStats(f,f.accounts[0]).st
 f.accounts[0].stage='phase2';assert.equal(accountStats(f,f.accounts[0]).status,'active');
 f.trades.push(trade('phase2',-700));assert.equal(accountStats(f,f.accounts[0]).status,'breached');
 assert.equal(tradeStats(f.trades).count,2);
+const chain=freshWorkspace('Phase chain');
+const p1={id:'p1',name:'Funded 5K',kind:'funded',plan:'two-step',stage:'phase1',size:5000,currency:'USD',profitTargetPct:8,phase2TargetPct:5,phase1DailyLossPct:4,phase1MaxLossPct:8,phase2DailyLossPct:3,phase2MaxLossPct:6,cost:99};
+chain.accounts.push(p1);chain.trades.push({id:'p1t',accountId:'p1',phase:'phase1',date:dateOf(),result:400,fees:0});
+assert.equal(accountStats(chain,p1).status,'passed');
+const p2=createSuccessorAccount(chain,p1);
+assert.ok(p2&&p2.stage==='phase2','Phase 1 creates Phase 2 automatically');
+assert.equal(p2.cost,0,'Purchase price is not duplicated');
+assert.equal(accountStats(chain,p2).target,250,'Phase 2 target uses the stored Phase 2 target');
+assert.equal(accountStats(chain,p2).dailyLossPct,3,'Phase 2 uses its own daily loss limit');
+assert.equal(accountStats(chain,p2).maxLossPct,6,'Phase 2 uses its own max DD');
+assert.equal(createSuccessorAccount(chain,p1),null,'A completed phase cannot create duplicate successors');
+chain.trades.push({id:'p2t',accountId:p2.id,phase:'phase2',date:dateOf(),result:250,fees:0});
+assert.equal(accountStats(chain,p2).status,'passed');
+const live=createSuccessorAccount(chain,p2);
+assert.ok(live&&live.stage==='funded','Phase 2 creates Live account automatically');
+assert.equal(accountStats(chain,live).target,0,'Live account has no profit target');
+assert.equal(accountStats(chain,live).dailyLossPct,3,'Live account keeps Phase 2 daily loss limit');
+assert.equal(accountStats(chain,live).maxLossPct,6,'Live account keeps Phase 2 max DD');
+assert.equal(isLiveAccount(p1),false);assert.equal(isLiveAccount(p2),false);assert.equal(isLiveAccount(live),true);
 for(const type of ['weekly','monthly','yearly']){
  const range=periodRange(type);const cert=certificateData(w,w.accounts[0],type,range.start,range.end);
  assert.ok(cert.name==='Alex Morgan');assert.ok(certificateSVG(cert).includes('CERTIFICATE OF PROGRESS'));
