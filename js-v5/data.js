@@ -82,6 +82,7 @@ export function portfolioSummary(workspace){
   }
   return {
     purchaseCount:purchases.length,
+    purchases:purchases.slice().sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))),
     accounts:[...byAccount.values()],
     currencies:[...currencyMap.values()].sort((a,b)=>a.currency.localeCompare(b.currency))
   };
