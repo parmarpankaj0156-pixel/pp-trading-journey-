@@ -79,3 +79,9 @@ html[data-theme="dark"] .app-content .panel.glass-surface:hover,html[data-theme=
 .trade-time-details summary small{margin-left:auto;color:#687e9c;font-size:11px}
 .trade-time-details[open] summary{border-bottom:1px solid #dce5f2;background:#f0f5ff}
 .trade-time-details[open] summary>svg:last-child{transform:rotate(180deg)}
+
+
+/* Funded challenge account number + phase identity */
+.chart-account-identity{display:flex;align-items:center;gap:10px;margin-top:9px;flex-wrap:wrap}
+.chart-account-identity strong{font-size:14px;font-weight:850;letter-spacing:-.02em;color:var(--text,#24334c)}
+.account-stage-chip{display:inline-flex;align-items:center;border:1px solid rgba(105,125,184,.2);border-radius:999px;padding:4px 10px;background:rgba(112,133,205,.10);color:#5368b4;font-size:11px;font-weight:800;white-space:nowrap}
