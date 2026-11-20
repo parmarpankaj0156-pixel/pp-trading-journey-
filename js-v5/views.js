@@ -236,13 +236,47 @@ export function pageView(c){switch(c.ui.route){case 'dashboard':return dashboard
 const field=(name,label,value='',type='text',opts='')=>`<label>${label}<input name="${name}" type="${type}" value="${esc(value??'')}" ${opts}/></label>`;
 const select=(name,label,options,value)=>`<label>${label}<select name="${name}">${options.map(o=>{let [v,l]=Array.isArray(o)?o:[o,o];return `<option value="${esc(v)}" ${value===v?'selected':''}>${esc(l)}</option>`}).join('')}</select></label>`;
 function formAccount(c,id){
- const old=c.w.accounts.find(a=>a.id===id),a=old||{name:'',broker:'',kind:c.ui.modal?.defaultKind||'funded',plan:'two-step',size:25000,currency:'USD',profitTargetPct:8,phase2TargetPct:5,phase1DailyLossPct:5,phase1MaxLossPct:10,phase2DailyLossPct:5,phase2MaxLossPct:10,cost:0};
- const number=old?.accountNumber||nextFundedAccountNumber(c.w),demoNo=old?.demoAccountNumber||nextDemoAccountNumber(c.w);
- return `<div class="account-generated-preview" style="${a.kind==='funded'?'':'display:none'}"><strong>Account ${number}</strong> · Phase 1</div><div class="account-generated-preview demo-number-preview-v5" style="${a.kind==='demo'?'':'display:none'}"><strong>Demo Account ${demoNo}</strong> · Demo only</div>
- <div class="form-grid two-col">${field('name',a.kind==='demo'?'Demo account name':'Internal label (optional)',a.name,'text','maxlength="70" placeholder="Only for your reference"')}${field('broker','Broker / platform',a.broker)}${select('kind','Account type',[['funded','Funded challenge'],['forex','Real Forex'],['indian','Real account'],['demo','Demo account']],a.kind)}${select('currency','Currency',CURRENCIES,a.currency)}${field('size','Starting balance',a.size,'number','required min="1" step="any"')}</div>
- <div class="funded-fields" ${a.kind!=='funded'?'style="display:none"':''}>${select('plan','Funded plan',[['two-step','2-Step evaluation'],['one-step','1-Step evaluation'],['instant','Instant funding']],a.plan)}${field('profitTargetPct','Phase 1 target (%)',a.profitTargetPct,'number','min="0"')}${field('phase2TargetPct','Phase 2 target (%)',a.phase2TargetPct,'number','min="0"')}${field('cost','Purchase price',a.cost,'number','min="0" step="any"')}</div>
- ${a.kind==='demo'?'<p class="form-help">Demo accounts have separate numbering, trades, P&L and charts. They are never included in funded/real investment or overall performance.</p>':''}`;
+ const old=c.w.accounts.find(a=>a.id===id);
+ const a=old||{name:'',broker:'',kind:c.ui.modal?.defaultKind||'funded',plan:'two-step',size:25000,currency:'USD',profitTargetPct:8,phase2TargetPct:5,phase1DailyLossPct:5,phase1MaxLossPct:10,phase2DailyLossPct:5,phase2MaxLossPct:10,cost:0};
+ const p1Daily=a.phase1DailyLossPct??a.dailyLossPct??5;
+ const p1Max=a.phase1MaxLossPct??a.maxLossPct??10;
+ const p2Daily=a.phase2DailyLossPct??a.dailyLossPct??5;
+ const p2Max=a.phase2MaxLossPct??a.maxLossPct??10;
+ const accountNo=old?.accountNumber||nextFundedAccountNumber(c.w);
+ const demoNo=old?.demoAccountNumber||nextDemoAccountNumber(c.w);
+ const previewStage=old?accountDisplayStage(old):(a.plan==='instant'?'Live':'Phase 1');
+ const preview=`<div class="account-generated-preview" style="${a.kind==='funded'?'':'display:none'}"><div><small>GENERATED ACCOUNT</small><strong>Account ${accountNo}</strong></div><span class="account-stage-chip">${previewStage}</span></div>
+ <div class="account-generated-preview demo-number-preview-v5" style="${a.kind==='demo'?'':'display:none'}"><div><small>SEPARATE DEMO NUMBER</small><strong>Demo Account ${demoNo}</strong></div><span class="account-stage-chip">Demo only</span></div>`;
+ const nameLabel=a.kind==='demo'?'Demo account name':a.kind==='funded'?'Internal label (optional)':'Account name';
+ const namePlaceholder=a.kind==='funded'?'Only for your reference':'e.g. Practice Account';
+ return `${preview}
+ <div class="form-grid two-col">
+  ${field('name',nameLabel,a.name,'text',`maxlength="70" placeholder="${namePlaceholder}"`)}
+  ${field('broker','Broker / platform',a.broker,'text','maxlength="70"')}
+  ${select('kind','Account type',[['funded','Funded challenge'],['forex','Real Forex'],['indian','Real account'],['demo','Demo account']],a.kind)}
+  ${select('currency','Currency',CURRENCIES,a.currency)}
+  ${field('size','Starting balance',a.size,'number','required min="1" step="any"')}
+  <div class="funded-fields-inline" style="${a.kind==='funded'?'':'display:none'}">
+   ${select('plan','Funded plan',[['two-step','2-Step evaluation'],['one-step','1-Step evaluation'],['instant','Instant funding']],a.plan)}
+  </div>
+ </div>
+ <div class="funded-fields" ${a.kind!=='funded'?'style="display:none"':''}>
+  <div class="form-section-title">${icon('shield',17)} Challenge rules</div>
+  <div class="form-grid two-col">
+   ${field('profitTargetPct','Phase 1 target (%)',a.profitTargetPct,'number','step="any" min="0"')}
+   ${field('phase1DailyLossPct','Phase 1 daily loss (%)',p1Daily,'number','step="any" min="0"')}
+   ${field('phase1MaxLossPct','Phase 1 max DD (%)',p1Max,'number','step="any" min="0"')}
+   ${field('phase2TargetPct','Phase 2 target (%)',a.phase2TargetPct,'number','step="any" min="0"')}
+   ${field('phase2DailyLossPct','Phase 2 daily loss (%)',p2Daily,'number','step="any" min="0"')}
+   ${field('phase2MaxLossPct','Phase 2 max DD (%)',p2Max,'number','step="any" min="0"')}
+   ${field('cost','Purchase price',a.cost,'number','step="any" min="0"')}
+  </div>
+  <p class="form-help">Live account will have no profit target and will keep the Phase 2 daily-loss and max-DD limits. Drawdown uses closed-trade P&amp;L.</p>
+ </div>
+ ${a.kind==='demo'?'<p class="form-help demo-account-note-v5">Demo accounts have separate numbering, trades, P&amp;L and charts. They are never added to funded/real investment or overall performance.</p>':''}
+ ${old?'<div class="form-help">Changing plan or account type after entering trades may affect historical challenge calculations. Existing phase remains unchanged.</div>':''}`;
 }
+
 function formTrade(c,id){
  const old=c.w.trades.find(t=>t.id===id);
  const active=c.w.accounts.filter(a=>(c.ui.tradeKind==='demo'?a.kind==='demo':a.kind!=='demo')&&(accountStats(c.w,a).status==='active'||a.id===old?.accountId));
