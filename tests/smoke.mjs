@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {demoWorkspace,freshWorkspace,normalizeWorkspace,accountStats,tradeStats,createSuccessorAccount,isLiveAccount,nextFundedAccountNumber,accountDisplayName,accountDisplayLabel} from '../js-v5/data.js';
+import {demoWorkspace,freshWorkspace,normalizeWorkspace,accountStats,tradeStats,createSuccessorAccount,isLiveAccount,nextFundedAccountNumber,nextDemoAccountNumber,portfolioSummary,demoPortfolioSummary,accountDisplayName,accountDisplayLabel} from '../js-v5/data.js';
 import {pageView,shell,landing,authView,recoveryKeyView,renderModal,riskCalculation} from '../js-v5/views.js';
 import {periodRange,certificateData,certificateSVG,completedPeriodWithTrades} from '../js-v5/certificates.js';
 import {dateOf,uuid} from '../js-v5/utils.js';
@@ -81,6 +81,31 @@ const legacy=normalizeWorkspace({accounts:[{id:'old-p1',kind:'funded',stage:'pha
 assert.deepEqual(legacy.accounts.map(x=>x.accountNumber),[1,2,3],'Legacy phases receive sequential account numbers');
 const retry={accounts:[{id:'failed-1',kind:'funded',accountNumber:1},{id:'failed-2',kind:'funded',accountNumber:2}]};
 assert.equal(nextFundedAccountNumber(retry),3,'Replacement challenge after breach gets the next serial');
+
+const isolated=freshWorkspace('Demo isolation');
+isolated.accounts=[
+ {id:'real-a',kind:'funded',stage:'phase1',plan:'two-step',accountNumber:1,currency:'USD',cost:120,size:10000,createdAt:'2026-01-01'},
+ {id:'demo-a',kind:'demo',stage:'demo',demoAccountNumber:1,name:'Practice One',currency:'USD',cost:0,size:10000,createdAt:'2026-01-02'},
+ {id:'demo-b',kind:'demo',stage:'demo',demoAccountNumber:2,name:'Practice Two',currency:'USD',cost:0,size:20000,createdAt:'2026-01-03'}
+];
+isolated.trades=[
+ {id:'real-t',accountId:'real-a',date:'2026-01-04',result:200,fees:5},
+ {id:'demo-t1',accountId:'demo-a',date:'2026-01-04',result:900,fees:0},
+ {id:'demo-t2',accountId:'demo-b',date:'2026-01-05',result:-300,fees:0}
+];
+assert.equal(nextFundedAccountNumber(isolated),2,'Demo accounts do not increment funded account numbering');
+assert.equal(nextDemoAccountNumber(isolated),3,'Demo accounts have their own sequence');
+assert.equal(accountDisplayName(isolated.accounts[1]),'Demo Account 1');
+assert.equal(accountDisplayLabel(isolated.accounts[2]),'Demo Account 2 · Demo');
+assert.equal(portfolioSummary(isolated).purchaseCount,1,'Demo accounts never enter real purchase count');
+assert.equal(portfolioSummary(isolated).currencies.find(x=>x.currency==='USD').net,195,'Real overall P&L excludes demo trades');
+assert.equal(portfolioSummary(isolated).accounts.length,1,'Real portfolio account list excludes demos');
+assert.equal(demoPortfolioSummary(isolated).accountCount,2,'Demo account count is separate');
+assert.equal(demoPortfolioSummary(isolated).currencies.find(x=>x.currency==='USD').net,600,'Demo P&L has its own total');
+assert.equal(isLiveAccount(isolated.accounts[1]),false,'Demo accounts cannot qualify for live withdrawals');
+const importedDemo=normalizeWorkspace({accounts:[{id:'d1',kind:'demo',createdAt:'2026-01-01'},{id:'d2',kind:'demo',createdAt:'2026-01-02'},{id:'f1',kind:'funded',createdAt:'2026-01-03'}]});
+assert.deepEqual(importedDemo.accounts.map(x=>x.kind==='demo'?x.demoAccountNumber:x.accountNumber),[1,2,1],'Imported demo accounts get an independent sequence');
+
 for(const type of ['weekly','monthly','yearly']){
  const range=periodRange(type);const cert=certificateData(w,w.accounts[0],type,range.start,range.end);
  assert.ok(cert.name==='Alex Morgan');assert.ok(certificateSVG(cert).includes('CERTIFICATE OF PROGRESS'));
