@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {accountEquitySeries,portfolioEquitySeries} from '../js-v5/charts.js';
 import {pageView,shell} from '../js-v5/views.js';
-import {freshWorkspace,portfolioSummary} from '../js-v5/data.js';
+import {freshWorkspace,portfolioSummary,demoPortfolioSummary,nextDemoAccountNumber} from '../js-v5/data.js';
 const w=freshWorkspace('Alex');
 const alpha={id:'alpha',name:'Alpha Fund',currency:'USD',kind:'forex',stage:'live',size:20000,createdAt:'2026-10-01'};
 const beta={id:'beta',name:'Beta Account',currency:'USD',kind:'forex',stage:'live',size:5000,createdAt:'2026-10-01'};
@@ -58,12 +58,30 @@ assert.equal(portfolioCurve.allTimeNet,390,'Overall equity chart combines every 
 assert.equal(portfolioCurve.count,4,'Overall equity chart excludes other currencies');
 const allUi={accountId:'p1',chartRange:'all',chartAccountMode:'all',portfolioCurrency:'USD',route:'dashboard',calendarMonth:'2026-11',modal:null,tradeSearch:'',tradeOutcome:'all',risk:{balance:10000,percent:1,entry:1,stop:0.9,take:1.1,multiplier:1000}};
 const portfolioHtml=shell({w:portfolio,ui:allUi,mode:'demo',user:null,demo:portfolio},pageView({w:portfolio,ui:allUi,mode:'demo',user:null,demo:portfolio}));
-assert.ok(portfolioHtml.includes('Overall · All accounts'),'Main chart can switch to all-accounts mode');
+assert.ok(portfolioHtml.includes('Overall · Funded &amp; Real'),'Main chart can switch to funded/real overall mode');
 assert.ok(portfolioHtml.includes('portfolio-overview-v5'),'Overall investment and performance summary is visible');
 assert.ok(portfolioHtml.includes('Purchase history'),'Purchase history is visible');
 assert.ok(portfolioHtml.includes('Account-wise profit / loss'),'Each account has a separate P&L row');
 assert.ok(portfolioHtml.includes('149.00')&&portfolioHtml.includes('99.00'),'Purchase history shows both original purchase prices');
 assert.ok(portfolioHtml.includes('390.00'),'Overall USD realized P&L is shown');
 assert.ok(portfolioHtml.includes('5,000.00'),'INR P&L is shown separately');
+
+portfolio.accounts.push({id:'demo-only',kind:'demo',stage:'demo',demoAccountNumber:1,name:'Demo only',currency:'USD',size:10000,cost:0,createdAt:'2026-10-01'});
+portfolio.trades.push({id:'demo-only-trade',accountId:'demo-only',date:'2026-11-03',result:9999,fees:0});
+assert.equal(portfolioSummary(portfolio).purchaseCount,2,'Demo account does not change funded purchase count');
+assert.equal(portfolioSummary(portfolio).currencies.find(x=>x.currency==='USD').net,390,'Real overall P&L excludes demo result');
+assert.equal(demoPortfolioSummary(portfolio).accountCount,1,'Demo count is separate');
+assert.equal(demoPortfolioSummary(portfolio).currencies.find(x=>x.currency==='USD').net,9999,'Demo P&L is kept separately');
+assert.equal(nextDemoAccountNumber(portfolio),2,'Demo account numbering is independent');
+const demoCurve=portfolioEquitySeries(portfolio,'USD','all','2026-11-05','demo');
+assert.equal(demoCurve.allTimeNet,9999,'Demo equity curve contains demo trades only');
+assert.equal(portfolioCurve.allTimeNet,390,'Funded/real chart is unchanged by demo P&L');
+const demoUi={...allUi,demoChartMode:'all'};
+const demoContext={w:portfolio,ui:demoUi,mode:'demo',user:null,demo:portfolio};
+const demoHtml=shell(demoContext,pageView(demoContext));
+assert.ok(demoHtml.includes('SEPARATE WORKSPACE'),'Dashboard shows its demo workspace separately');
+assert.ok(demoHtml.includes('Demo account-wise profit / loss'),'Demo accounts have a separate P&L list');
+assert.ok(demoHtml.includes('demo-chart-account-select'),'Demo chart has its own account selector');
+
 
 console.log('✓ Portfolio: successor phases count as one purchase, replacement is a new purchase, price history, currency-separated overall chart and account P&L.');
