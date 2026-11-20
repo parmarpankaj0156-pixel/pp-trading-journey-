@@ -110,6 +110,15 @@ html[data-theme="dark"] .portfolio-metrics-v5>div>strong,html[data-theme="dark"]
 html[data-theme="dark"] .portfolio-purchase-head-v5>strong,html[data-theme="dark"] .portfolio-purchase-row>span strong{color:#edf3ff}
 html[data-theme="dark"] .portfolio-purchase-head-v5>span,html[data-theme="dark"] .portfolio-purchase-row>span small{color:#a9bad7}
 html[data-theme="dark"] .portfolio-purchase-row{background:rgba(31,51,81,.78);border-color:rgba(103,133,184,.25)}
+.demo-workspace-v5{margin:18px 0 24px;padding:23px 25px;border:1px solid rgba(155,153,218,.33)!important;background:linear-gradient(135deg,rgba(250,249,255,.97),rgba(242,244,255,.94))!important}
+.demo-summary-strip-v5{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:15px 0}
+.demo-summary-strip-v5>div{padding:13px 15px;border:1px solid rgba(173,176,224,.32);border-radius:15px;background:rgba(245,244,255,.7)}
+.demo-summary-strip-v5 small{display:block;margin-bottom:7px;color:#7983a0;font-size:11px;font-weight:750}
+.demo-summary-strip-v5 strong{font-size:18px;font-weight:850}
+.demo-empty-v5{padding:18px;border-radius:14px;background:rgba(241,241,255,.68);color:#697699}
+.demo-accounts-section-v5{margin-top:26px;padding-top:16px;border-top:1px solid rgba(174,194,224,.35)}
+.demo-account-card-v5{border-color:rgba(151,148,218,.35)!important}
+@media(max-width:760px){.demo-workspace-v5{padding:18px 15px}.demo-summary-strip-v5{grid-template-columns:1fr}}
 /* Optional trade time control */
 .trade-time-details{border:1px solid #d7e1f1;border-radius:17px;background:linear-gradient(140deg,#f7faff,#f3f6ff);overflow:hidden}
 .trade-time-details summary{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;padding:13px 16px;color:#334866;font-size:13px;font-weight:800;list-style:none}
