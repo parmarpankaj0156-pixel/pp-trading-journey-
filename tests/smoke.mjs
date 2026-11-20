@@ -15,6 +15,15 @@ for(const route of ['dashboard','trades','calendar','accounts','analytics','perf
  ui.route=route;const html=shell(c,pageView(c));
  assert.ok(html.length>1000,`${route} should render`);
  assert.ok(!/\b(?:undefined|NaN)\b/.test(html),`${route} missing data`);
+ui.modal={type:'account',defaultKind:'funded'};
+const fundedForm=renderModal(c);
+for(const label of ['Phase 1 target (%)','Phase 1 daily loss (%)','Phase 1 max DD (%)','Phase 2 target (%)','Phase 2 daily loss (%)','Phase 2 max DD (%)','Purchase price'])assert.ok(fundedForm.includes(label),`Funded account form includes ${label}`);
+assert.ok(fundedForm.includes('form-grid two-col'),'Funded challenge rules use the responsive two-column grid');
+ui.modal={type:'account',defaultKind:'demo'};
+const demoForm=renderModal(c);
+assert.ok(demoForm.includes('Demo account name'),'Demo account form has its own name field');
+assert.ok(demoForm.includes('SEPARATE DEMO NUMBER'),'Demo account form displays its independent sequence');
+ui.modal=null;
 }
 assert.ok(landing(c).includes('Grow with clarity.'),'Landing should render');
 assert.ok(pageView({...c,ui:{...ui,route:'dashboard'}}).includes('interactive-equity'),'Interactive chart');
