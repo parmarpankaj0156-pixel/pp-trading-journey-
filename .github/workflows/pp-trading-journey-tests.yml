@@ -19,6 +19,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Check application JavaScript syntax
+        run: |
+          node --check js-v5/app.js
+          node --check js-v5/views.js
+          node --check js-v5/data.js
+          node --check js-v5/charts.js
       - name: Run application tests
         run: |
           npm test
