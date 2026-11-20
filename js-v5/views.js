@@ -240,13 +240,14 @@ function formAccount(c,id){
  const number=old?.accountNumber||nextFundedAccountNumber(c.w),demoNo=old?.demoAccountNumber||nextDemoAccountNumber(c.w);
  return `<div class="account-generated-preview" style="${a.kind==='funded'?'':'display:none'}"><strong>Account ${number}</strong> · Phase 1</div><div class="account-generated-preview demo-number-preview-v5" style="${a.kind==='demo'?'':'display:none'}"><strong>Demo Account ${demoNo}</strong> · Demo only</div>
  <div class="form-grid two-col">${field('name',a.kind==='demo'?'Demo account name':'Account name',a.name,'text','maxlength="70"')}${field('broker','Broker / platform',a.broker)}${select('kind','Account type',[['funded','Funded challenge'],['forex','Real Forex'],['indian','Real account'],['demo','Demo account']],a.kind)}${select('currency','Currency',CURRENCIES,a.currency)}${field('size','Starting balance',a.size,'number','required min="1" step="any"')}</div>
- <div class="funded-fields" ${a.kind!=='funded'?'style="display:none"':''}>${select('plan','Funded plan',[['two-step','2-Step evaluation'],['one-step','1-Step evaluation'],['instant','Instant funding']],a.plan)}${field('profitTargetPct','Phase 1 target (%)',a.profitTargetPct,'number','min="0"')}${field('phase2TargetPct','Phase 2 target (%)',a.phase2TargetPct,'number','min="0"')}${field('cost','Purchase price',a.cost,'number','min="0")')}</div>
+ <div class="funded-fields" ${a.kind!=='funded'?'style="display:none"':''}>${select('plan','Funded plan',[['two-step','2-Step evaluation'],['one-step','1-Step evaluation'],['instant','Instant funding']],a.plan)}${field('profitTargetPct','Phase 1 target (%)',a.profitTargetPct,'number','min="0"')}${field('phase2TargetPct','Phase 2 target (%)',a.phase2TargetPct,'number','min="0"')}${field('cost','Purchase price',a.cost,'number','min="0" step="any"')}</div>
  ${a.kind==='demo'?'<p class="form-help">Demo accounts have separate numbering, trades, P&L and charts. They are never included in funded/real investment or overall performance.</p>':''}`;
 }
-function formTrade(c,id){function formTrade(c,id){
+function formTrade(c,id){
  const old=c.w.trades.find(t=>t.id===id);
- const active=c.w.accounts.filter(a=>accountStats(c.w,a).status==='active'||a.id===old?.accountId);
- const a=c.w.accounts.find(a=>a.id===(old?.accountId||c.ui.accountId))||active[0];
+ const active=c.w.accounts.filter(a=>(c.ui.tradeKind==='demo'?a.kind==='demo':a.kind!=='demo')&&(accountStats(c.w,a).status==='active'||a.id===old?.accountId));
+ const preferredId=c.ui.tradeKind==='demo'?c.ui.demoChartMode:c.ui.accountId;
+ const a=c.w.accounts.find(a=>a.id===(old?.accountId||preferredId))||active[0];
  const t=old||{date:today(),time:'',symbol:'',direction:'Long',session:'New York',setup:'Other',entryType:'planned',result:'',risk:'',rr:'',fees:0,emotion:'Neutral',followedPlan:false,notes:'',entryPrice:'',exitPrice:'',stopLoss:'',takeProfit:'',lotSize:''};
  const originalTime=t.time||((t.createdAt||'').match(/T(\d{2}:\d{2})/)||[])[1]||'';
  const result=Math.abs(Number(t.result||0));const outcome=(t.result<0)?'loss':'profit';
