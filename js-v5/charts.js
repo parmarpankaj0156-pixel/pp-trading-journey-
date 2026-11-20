@@ -48,9 +48,9 @@ export function accountEquitySeries(workspace, account, range='30', asOf=dateOf(
 /** Combined realized P&L curve for every account in one currency.
  * Mixed currencies stay separate; USD, INR, EUR and GBP are never added together.
  */
-export function portfolioEquitySeries(workspace,currency='USD',range='30',asOf=dateOf()){
+export function portfolioEquitySeries(workspace,currency='USD',range='30',asOf=dateOf(),group='real'){
  const r=['7','14','30','all'].includes(String(range))?String(range):'30';
- const accounts=(workspace?.accounts||[]).filter(a=>(a.currency||'USD')===currency);
+ const accounts=(workspace?.accounts||[]).filter(a=>(group==='demo'?a.kind==='demo':a.kind!=='demo')&&(a.currency||'USD')===currency);
  const ids=new Set(accounts.map(a=>a.id));
  const trades=(workspace?.trades||[]).filter(t=>ids.has(t.accountId)&&/^\d{4}-\d{2}-\d{2}$/.test(t.date||'')&&t.date<=asOf).sort((a,b)=>a.date.localeCompare(b.date));
  const allTimeNet=sum(trades,tradeNet);
