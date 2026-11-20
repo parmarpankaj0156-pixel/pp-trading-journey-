@@ -23,10 +23,12 @@ function assignFundedAccountNumbers(accounts){
  return result;
 }
 export function nextFundedAccountNumber(workspace){return Math.max(0,...(workspace?.accounts||[]).filter(a=>a.kind==='funded').map(a=>Number(a.accountNumber)||0))+1;}
+function assignDemoAccountNumbers(accounts){const result=accounts.map(a=>({...a}));const demos=result.filter(a=>a.kind==='demo');let next=Math.max(0,...demos.map(a=>Number(a.demoAccountNumber)||0))+1;demos.sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||''))).forEach(a=>{if(!(Number(a.demoAccountNumber)>0))a.demoAccountNumber=next++;});return result;}
+export function nextDemoAccountNumber(workspace){return Math.max(0,...(workspace?.accounts||[]).filter(a=>a.kind==='demo').map(a=>Number(a.demoAccountNumber)||0))+1;}
 export function normalizeWorkspace(obj) {
   const d=freshWorkspace();
   if(!obj || typeof obj!=='object') return d;
-  return {...d,...obj,profile:{...d.profile,...(obj.profile||{})},accounts:assignFundedAccountNumbers(Array.isArray(obj.accounts)?obj.accounts.map(a=>({...a,phase1DailyLossPct:a.phase1DailyLossPct??a.dailyLossPct??0,phase1MaxLossPct:a.phase1MaxLossPct??a.maxLossPct??0,phase2DailyLossPct:a.phase2DailyLossPct??a.dailyLossPct??0,phase2MaxLossPct:a.phase2MaxLossPct??a.maxLossPct??0})):[]),trades:Array.isArray(obj.trades)?obj.trades:[],withdrawals:Array.isArray(obj.withdrawals)?obj.withdrawals:[],notes:Array.isArray(obj.notes)?obj.notes:[],goals:Array.isArray(obj.goals)?obj.goals:[]};
+  return {...d,...obj,profile:{...d.profile,...(obj.profile||{})},accounts:assignDemoAccountNumbers(assignFundedAccountNumbers(Array.isArray(obj.accounts)?obj.accounts.map(a=>({...a,phase1DailyLossPct:a.phase1DailyLossPct??a.dailyLossPct??0,phase1MaxLossPct:a.phase1MaxLossPct??a.maxLossPct??0,phase2DailyLossPct:a.phase2DailyLossPct??a.dailyLossPct??0,phase2MaxLossPct:a.phase2MaxLossPct??a.maxLossPct??0})):[])),trades:Array.isArray(obj.trades)?obj.trades:[],withdrawals:Array.isArray(obj.withdrawals)?obj.withdrawals:[],notes:Array.isArray(obj.notes)?obj.notes:[],goals:Array.isArray(obj.goals)?obj.goals:[]};
 }
 const seed=(x)=>{let s=x;return ()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}};
 export function demoWorkspace(){
@@ -55,38 +57,21 @@ export function demoWorkspace(){
   w.goals=[{id:'g1',title:'Follow my trade plan',target:20,progress:13,unit:'trades'},{id:'g2',title:'Complete weekly reviews',target:8,progress:5,unit:'reviews'},{id:'g3',title:'Maintain risk discipline',target:30,progress:22,unit:'sessions'}];
   w.profile.defaultAccountId='a1';w.accounts=assignFundedAccountNumbers(w.accounts);return w;
 }
-export function portfolioSummary(workspace){
-  const accounts=Array.isArray(workspace?.accounts)?workspace.accounts:[];
-  const trades=Array.isArray(workspace?.trades)?workspace.trades:[];
+function buildAccountSummary(workspace,group='real'){
+  const allAccounts=Array.isArray(workspace?.accounts)?workspace.accounts:[];
+  const accounts=allAccounts.filter(a=>group==='demo'?a.kind==='demo':a.kind!=='demo');
+  const ids=new Set(accounts.map(a=>a.id));
+  const trades=(Array.isArray(workspace?.trades)?workspace.trades:[]).filter(t=>ids.has(t.accountId));
   const currencyMap=new Map();
-  const bucketFor=currency=>{
-    const key=currency||'USD';
-    if(!currencyMap.has(key))currencyMap.set(key,{currency:key,net:0,invested:0,purchases:0,tradeCount:0,accountCount:0});
-    return currencyMap.get(key);
-  };
-  const byAccount=new Map();
-  for(const account of accounts){
-    const own=trades.filter(t=>t.accountId===account.id);
-    const net=sum(own,t=>Number(t.result||0)-Number(t.fees||0));
-    byAccount.set(account.id,{account,net,tradeCount:own.length});
-    const bucket=bucketFor(account.currency);
-    bucket.net+=net;bucket.tradeCount+=own.length;bucket.accountCount+=1;
-  }
-  // Count only original/root purchases. Automatically created Phase 2 and Live
-  // successors have parentAccountId and cost 0, so they are not double-counted.
-  const purchases=accounts.filter(a=>!a.parentAccountId&&(a.kind==='funded'||Number(a.cost)>0));
-  for(const account of purchases){
-    const bucket=bucketFor(account.currency);
-    bucket.purchases+=1;
-    bucket.invested+=Math.max(0,Number(account.cost)||0);
-  }
-  return {
-    purchaseCount:purchases.length,
-    purchases:purchases.slice().sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))),
-    accounts:[...byAccount.values()],
-    currencies:[...currencyMap.values()].sort((a,b)=>a.currency.localeCompare(b.currency))
-  };
+  const bucketFor=currency=>{const key=currency||'USD';if(!currencyMap.has(key))currencyMap.set(key,{currency:key,net:0,invested:0,purchases:0,tradeCount:0,accountCount:0});return currencyMap.get(key);};
+  const byAccount=[];
+  for(const account of accounts){const own=trades.filter(t=>t.accountId===account.id);const net=sum(own,t=>Number(t.result||0)-Number(t.fees||0));byAccount.push({account,net,tradeCount:own.length});const bucket=bucketFor(account.currency);bucket.net+=net;bucket.tradeCount+=own.length;bucket.accountCount+=1;}
+  const purchases=group==='demo'?[]:accounts.filter(a=>!a.parentAccountId&&(a.kind==='funded'||Number(a.cost)>0));
+  for(const account of purchases){const bucket=bucketFor(account.currency);bucket.purchases+=1;bucket.invested+=Math.max(0,Number(account.cost)||0);}
+  return {accountCount:accounts.length,purchaseCount:purchases.length,purchases:purchases.slice().sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))),accounts:byAccount,currencies:[...currencyMap.values()].sort((a,b)=>a.currency.localeCompare(b.currency))};
 }
+export function portfolioSummary(workspace){return buildAccountSummary(workspace,'real');}
+export function demoPortfolioSummary(workspace){return buildAccountSummary(workspace,'demo');}
 export function accountTrades(w,accountId,phase=null){return w.trades.filter(t=>t.accountId===accountId&&(!phase||t.phase===phase));}
 export function accountStats(w,a){
   if(!a)return {all:[],stageTrades:[],net:0,dayPnL:0,winRate:0,wins:0,losses:0,total:0,profitFactor:0,avgRR:0,stageNet:0,target:0,progress:0,status:'active',maxDrawdown:0};
@@ -125,11 +110,11 @@ export function createSuccessorAccount(workspace,account){
   workspace.profile.defaultAccountId=next.id;
   return next;
 }
-export const isLiveAccount=(account)=>!!account&&(account.kind!=='funded'||account.stage==='funded');
+export const isLiveAccount=(account)=>!!account&&account.kind!=='demo'&&(account.kind!=='funded'||account.stage==='funded');
 
 export function tradeStats(trades){const sorted=[...trades].sort((a,b)=>a.date.localeCompare(b.date));const net=sum(sorted,t=>t.result-(t.fees||0));const wins=sorted.filter(t=>t.result>0);const losses=sorted.filter(t=>t.result<0);return {net,count:trades.length,wins:wins.length,losses:losses.length,winRate:trades.length?wins.length/trades.length*100:0,average:trades.length?net/trades.length:0,avgWinner:wins.length?sum(wins,t=>t.result)/wins.length:0,avgLoser:losses.length?sum(losses,t=>t.result)/losses.length:0,profitFactor:losses.length?sum(wins,t=>t.result)/Math.abs(sum(losses,t=>t.result)):0,best:sorted.length?Math.max(...sorted.map(t=>t.result)):0,worst:sorted.length?Math.min(...sorted.map(t=>t.result)):0};}
-export const accountLabel=(a)=>a?.kind==='funded'?'Funded account':a?.kind==='indian'?'Indian market':'Real forex';
-export const stageLabel=(a)=>!a?'—':a.kind!=='funded'?'Live account':({phase1:'Phase 1',phase2:'Phase 2',funded:'Live account'})[a.stage]||'Phase 1';
-export const accountDisplayName=(a)=>a?.kind==='funded'?`Account ${Number(a.accountNumber)||'—'}`:(a?.name||'Account');
-export const accountDisplayStage=(a)=>a?.kind==='funded'&&a.stage==='funded'?'Live':stageLabel(a);
-export const accountDisplayLabel=(a)=>a?.kind==='funded'?`${accountDisplayName(a)} · ${accountDisplayStage(a)}`:(a?.name||'Account');
+export const accountLabel=(a)=>a?.kind==='demo'?'Demo account':a?.kind==='funded'?'Funded account':a?.kind==='indian'?'Indian market':'Real forex';
+export const stageLabel=(a)=>!a?'—':a.kind==='demo'?'Demo account':a.kind!=='funded'?'Live account':({phase1:'Phase 1',phase2:'Phase 2',funded:'Live account'})[a.stage]||'Phase 1';
+export const accountDisplayName=(a)=>a?.kind==='funded'?`Account ${Number(a.accountNumber)||'—'}`:a?.kind==='demo'?`Demo Account ${Number(a.demoAccountNumber)||'—'}`:(a?.name||'Account');
+export const accountDisplayStage=(a)=>a?.kind==='demo'?'Demo':a?.kind==='funded'&&a.stage==='funded'?'Live':stageLabel(a);
+export const accountDisplayLabel=(a)=>a?.kind==='funded'?`${accountDisplayName(a)} · ${accountDisplayStage(a)}`:a?.kind==='demo'?`${accountDisplayName(a)} · Demo`:(a?.name||'Account');
